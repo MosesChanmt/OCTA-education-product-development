@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Product Development Lifecycle (Visual)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Slate 50 */
+        }
+        .content-card {
+            transition: all 0.3s ease-in-out;
+            transform: translateY(10px);
+            opacity: 0;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .content-card.active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .step.active {
+            background-color: #eff6ff; /* Blue 50 */
+            color: #1e40af; /* Blue 800 */
+            border-color: #3b82f6; /* Blue 500 */
+        }
+        .step.active .step-circle {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        .lang-en .lang-zh, .lang-zh .lang-en {
+            display: none;
+        }
+        /* Custom styles for the professional header look */
+        .professional-header {
+            background-color: #1e40af; /* Dark Blue */
+            background-image: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            padding: 3rem 1rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .professional-icon {
+            color: #3b82f6; /* Blue 500 */
+            width: 40px;
+            height: 40px;
+        }
+    </style>
+</head>
+<body class="text-slate-800 lang-en">
+
+    <div id="app" class="container mx-auto p-4 md:p-8">
+        
+        <!-- Professional Header Section -->
+        <header class="text-center mb-8 md:mb-12 professional-header">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white">
+                <span class="lang-en">Product Lifecycle & Strategic Development</span>
+                <span class="lang-zh">產品生命週期與策略開發</span>
+            </h1>
+            <p class="text-blue-200 mt-3 md:text-xl">
+                <span class="lang-en">The 14-Stage Engineering & Commercial Roadmap</span>
+                <span class="lang-zh">14 階段工程與商業藍圖</span>
+            </p>
+            <div class="mt-6">
+                <button id="lang-toggle" class="bg-white border border-slate-300 rounded-full px-5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 transition shadow-lg">
+                    <span class="lang-en">切換到中文 (Switch to Chinese)</span>
+                    <span class="lang-zh">Switch to English (切換到英文)</span>
+                </button>
+            </div>
+        </header>
+        <!-- End Professional Header Section -->
+
+        <main class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <aside class="lg:col-span-4 xl:col-span-3">
+                <nav id="stepper" class="bg-white p-4 rounded-xl shadow-xl border border-slate-200 sticky top-4">
+                    <h2 class="font-bold mb-3 text-lg text-slate-700">
+                        <span class="lang-en">The 14 Key Stages</span>
+                        <span class="lang-zh">14 個關鍵階段</span>
+                    </h2>
+                    <div class="flex flex-row overflow-x-auto lg:flex-col lg:overflow-x-visible pb-2 lg:pb-0 space-x-2 lg:space-x-0">
+                    </div>
+                </nav>
+            </aside>
+
+            <section id="content-display" class="lg:col-span-8 xl:col-span-9 min-h-[500px]">
+                <div id="content-card" class="bg-white p-6 md:p-8 rounded-xl content-card">
+                    <div class="flex items-start">
+                        <div id="content-icon" class="flex-shrink-0 mr-4 p-3 rounded-xl bg-blue-50"></div>
+                        <div>
+                            <h2 id="content-title" class="text-2xl font-bold text-slate-900"></h2>
+                            <h3 id="content-title-zh" class="text-xl font-semibold text-slate-700 mt-1"></h3>
+                        </div>
+                    </div>
+                    <div class="mt-6 prose max-w-none text-slate-700">
+                        <div class="lang-en">
+                            <!-- Detailed Description -->
+                            <h4 class="font-bold text-slate-800 border-b pb-1 mb-3 text-lg">1. Detailed Description (Why and What)</h4>
+                            <p id="content-en" class="text-slate-600 mb-6"></p>
+
+                            <!-- Key Activities (Step-by-Step) -->
+                            <h4 class="font-bold text-slate-800 border-b pb-1 mb-3 text-lg">2. Key Activities (The Execution Steps)</h4>
+                            <ul id="content-en-activities" class="list-disc pl-5 space-y-2 text-slate-600"></ul>
+
+                            <!-- Example -->
+                            <h4 class="font-bold text-slate-800 border-b pb-1 mb-3 mt-6 text-lg">3. Real-Life Example: The Smart Grocer App 🛒</h4>
+                            <p id="content-en-example" class="text-slate-600 italic"></p>
+                        </div>
+                        <div class="lang-zh">
+                            <!-- Detailed Description -->
+                             <h4 class="font-bold text-slate-800 border-b pb-1 mb-3 text-lg">1. 詳細解釋（原因與內容）</h4>
+                            <p id="content-zh" class="text-slate-600 mb-6"></p>
+
+                            <!-- Key Activities (Step-by-Step) -->
+                            <h4 class="font-bold text-slate-800 border-b pb-1 mb-3 text-lg">2. 關鍵活動（執行步驟）</h4>
+                            <ul id="content-zh-activities" class="list-disc pl-5 space-y-2 text-slate-600"></ul>
+
+                            <!-- Example -->
+                            <h4 class="font-bold text-slate-800 border-b pb-1 mb-3 mt-6 text-lg">3. 現實範例：智能雜貨應用程式 🛒</h4>
+                            <p id="content-zh-example" class="text-slate-600 italic"></p>
+                        </div>
+                    </div>
+                </div>
+                   <div class="flex justify-between mt-6">
+                    <button id="prev-btn" class="bg-white border border-slate-300 rounded-lg px-6 py-3 font-medium text-slate-700 hover:bg-slate-100 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md">
+                        <span class="lang-en">← Previous</span>
+                        <span class="lang-zh">← 上一階段</span>
+                    </button>
+                    <button id="next-btn" class="bg-blue-600 text-white rounded-lg px-6 py-3 font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md">
+                        <span class="lang-en">Next →</span>
+                        <span class="lang-zh">下一階段 →</span>
+                    </button>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        // SVG Icon Templates for a professional look (Lucide-React equivalents)
+        const icons = {
+            Lightbulb: '<svg xmlns="http://www.w3.org/2000/svg" class="professional-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .5-2 1-3 1.2-2.5 4.5-5 8-5h1c-1-2-3-4-5-4H7c-2 0-4 2-5 4 3.5 0 6.8 2.5 8 5 .5 1 .8 2 1 3z"/><path d="M9 18h6"/><path d="M12 22h-1c-1 0-2-1-2-2v-3c0-1 1-2 2-2h2c1 0 2 1 2 2v3c0 1-1 2-2 2h-1z"/></svg>',
+            Users: '<svg xmlns="http://www.w3.org/2000/svg" class="professional-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+            FlaskConical: '<svg xmlns="http://www.w3.org/2000/svg" class="professional-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 23.5V17"/><path d="M14 23.5V17"/><path d="M8.5 17h7c.3 0 .5-.2.5-.5v-10c0-.3-.2-.5-.5-.5h-7c-.3 0-.5.2-.5.5v10c0 .3.2.5.5.5z"/><path d="M12 3v-2"/><path d="M15 4l-1.5-1.5"/><path d="M9 4l1.5-1.5"/></svg>',
+            SlidersHorizontal: '<svg xmlns="http://www.w3.org/2000/svg" class="professional-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="17" x2="3" y1="5" y2="5"/><line x1="21" x2="7" y1="19" y2="19"/><line x1="6" x2="16" y1="12" y2="12"/><path d="M10 3v4"/><path d="M14 17v4"/><path d="M3 10v4"/></svg>',
+            FileText: '<svg xmlns="http://www.w3.org/2000/svg" class="professional-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="21" y2="21" style="display: none;"/></svg>',
+            Ruler: '<svg xmlns="http://www.w3.org/2000/svg" class="professional-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.5 15.5l-2-2-10 10-2-2 10-10 2-2zm-12 11.5l-2-2-5 5-2-2 5-5 2-2z" style="display: none;"/><line x1="15" x2="8" y1="9" y2="2"/><line x1="7" x2="2" y1="14" y2="9"/><line x1="21" x2="16" y1="3" y2="8"/><path d="M19 16l-3.5 3.5a1.5 1.5 0 0 1-2.12 0l-4.5-4.5a1.5 1.5 0 0 1 0-2.12L12 9" transform="translate(0 -2)"/><line x1="8.5" x2="8.5" y1="11" y2="12.5"/><line x1="11.5" x2="11.5" y1="14" y2="15.5"/></svg>',
+            Box: '<svg xmlns="http://www.w3.org/2000/svg" class="professional-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8V12C21 13.1046 20.1046 14 19 14H5C3.89543 14 3 13.1046 3 12V8C3 6.89543 3.89543 6 5 6H19C20.1046 6 21 6.89543 21 8Z"/><path d="M12 2L12 22"/><path d="M20 18H4C2.89543 18 2 17.1046 2 16V8C2 6.89543 2.89543 6 4 6H20C21.1046 6 22 6.89543 22 8V16C22 17.1046 21.1046 18 20 18Z" style="display: none;"/><path d="M21 16V8"/><path d="M3 16V8"/><path d="M20 10H4"/><path d="M16 10V4"/></svg>',
+            ShieldCheck: '<svg xmlns="http://www.w3.org/2000/svg" class="professional-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>',
+            ClipboardCheck: '<svg xmlns="http://www.w3.org/2000/svg" class="professional-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 14l2 2 4-4"/></svg>',
+            Factory: '<svg xmlns="http://www.w3.org/2000/svg" class="professional-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 21V8a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v13"/><path d="M6 16.5V13a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v3.5"/><path d="M16 21V11a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v10"/><path d="M21 21V13a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v8"/><path d="M20 7H4"/><path d="M12 7l4-4 4 4"/></svg>',
+            PackageOpen: '<svg xmlns="http://www.w3.org/2000/svg" class="professional-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.7 1L21 9v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9l3.1-5.1A2 2 0 0 1 8.8 3z"/><path d="M10 10l3-3"/><path d="M12 12V6"/><path d="M18 10l-3-3"/><path d="M6 10l3-3"/></svg>',
+            Globe: '<svg xmlns="http://www.w3.org/2000/svg" class="professional-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" style="display: none;"/><line x1="2.1" x2="21.9" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 0 4 10 15.3 15.3 0 0 0-4 10 15.3 15.3 0 0 0-4-10 15.3 15.3 0 0 0 4-10z"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" style="display: none;"/><path d="M8 3a10 10 0 0 0 0 18"/><path d="M16 3a10 10 0 0 1 0 18"/></svg>',
+            Rocket: '<svg xmlns="http://www.w3.org/2000/svg" class="professional-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22.3V19a3 3 0 0 0-3-3v0a3 3 0 0 0-3 3v3.3l-2.4 1.4a1 1 0 0 0 1.9 1.6l1.5-.9h3.6l1.5.9a1 1 0 0 0 1.9-1.6l-2.4-1.4z"/><path d="M12 16V4"/><path d="M8 8l4-4 4 4"/><path d="M10 16L6 20"/><path d="M14 16l4 4"/></svg>',
+            Tool: '<svg xmlns="http://www.w3.org/2000/svg" class="professional-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94-7.94l-3.77 3.77a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0z"/><path d="M12.5 13.5l-4 4a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l4-4"/><path d="M15 13l-4 4a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l4-4"/></svg>'
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- DETAILED STEP DATA ---
+            // NOTE: Markdown bolding (**) has been replaced with HTML <b> tags for correct rendering.
+            const stepsData = [
+                {
+                    en_title: "Idea (Conceptualization)",
+                    zh_title: "概念 (概念化)",
+                    en_desc: "This initial stage is the 'discovery' phase, where the focus is entirely on defining the <b>problem</b>—not the solution. It involves deep market research and customer interviews to identify a genuine pain point, an unmet need, or a white space in the market that a new product could solve. This ensures development resources aren't wasted on a product nobody needs.",
+                    zh_desc: "這個初始階段是「發現」階段，重點完全放在定義<b>問題</b>—而不是解決方案。它涉及深入的市場研究和客戶訪談，以識別真正的痛點、未被滿足的需求，或市場上的空白區域，以便新產品可以解決。這確保了開發資源不會浪費在一個沒人需要的產品上。",
+                    en_activities: [
+                        "Conduct user interviews and surveys to identify pain points.",
+                        "Analyze competitors and existing solutions (market gap analysis).",
+                        "Define the core problem statement (e.g., 'Hydration tracking is passive and ineffective').",
+                        "Determine the overall scope and market potential."
+                    ],
+                    zh_activities: [
+                        "進行用戶訪談和調查以識別痛點。",
+                        "分析競爭對手和現有解決方案（市場差距分析）。",
+                        "定義核心問題陳述（例如：「水分追蹤是被動且無效的」）。",
+                        "確定總體範圍和市場潛力。"
+                    ],
+                    en_example: "Pain Point: Users waste time manually creating categorized shopping lists, struggle with meal planning fatigue, and often forget items they need. Activity: Interviews focus on how users transition from finding a recipe to having a complete, organized list in-store, revealing the tedious manual steps that need automation.",
+                    zh_example: "痛點：用戶浪費時間手動創建分類購物清單，與膳食計劃疲勞作鬥爭，並且經常忘記他們需要的物品。活動：訪談重點在於用戶如何從找到食譜過渡到在商店中擁有完整、有組織的清單，揭示需要自動化的繁瑣手動步驟。",
+                    icon: icons.Lightbulb
+                },
+                {
+                    en_title: "Brainstorm (Ideation & Selection)",
+                    zh_title: "頭腦風暴 (想法生成與篩選)",
+                    en_desc: "Once the problem is clear, the team generates numerous potential solutions, often in a group setting. The key is to generate quantity first, then rigorously filter the ideas based on three criteria: <b>Feasibility</b> (Can we build it?), <b>Viability</b> (Will it make money?), and <b>Desirability</b> (Do customers want it?). The best concept is then selected.",
+                    zh_desc: "一旦問題明確，團隊就會產生許多潛在的解決方案，通常是在小組環境中。關鍵是先追求數量，然後根據三個標準嚴格篩選想法：<b>可行性</b>（我們能建造它嗎？）、<b>商業可行性</b>（它會賺錢嗎？）和<b>期望性</b>（客戶想要它嗎？）。然後選出最佳概念。",
+                    en_activities: [
+                        "Generate wide-ranging solution concepts (Sketching, discussion).",
+                        "Conduct a preliminary risk analysis for each idea.",
+                        "Score concepts against Feasibility, Viability, and Desirability criteria.",
+                        "Select the winning concept (e.g., a bottle with a light-up reminder and app integration)."
+                    ],
+                    zh_activities: [
+                        "生成廣泛的解決方案概念（素描、討論）。",
+                        "對每個想法進行初步風險分析。",
+                        "根據可行性、商業可行性和期望性標準對概念進行評分。",
+                        "選擇獲勝的概念（例如，帶有閃光提醒和應用程式整合的瓶子）。"
+                    ],
+                    en_example: "Concepts: A simple list-sharing tool, a static recipe book app, or the full <b>Smart Grocer app</b> using AI to generate recipes from pantry input and create organized lists. Selection: The full AI-Grocer concept is chosen for its high desirability, addressing the root problem (planning/inventory), and potential for a premium subscription model (high viability).",
+                    zh_example: "概念：一個簡單的清單共享工具、一個靜態食譜書應用程式，或使用 AI 從食品儲藏室輸入生成食譜並創建有組織清單的完整<b>智能雜貨應用程式</b>。篩選：選擇完整的 AI 雜貨概念，因為它具有高期望性，解決了根本問題（規劃/庫存），以及高級訂閱模式的潛力（高商業可行性）。",
+                    icon: icons.Users
+                },
+                {
+                    en_title: "Proof of Concept (POC)",
+                    zh_title: "概念驗證 (POC)",
+                    en_desc: "The POC is a minimal effort used to test the <b>single riskiest technical assumption</b> of the product. It's a quick, internal experiment designed to answer the question: 'Can this core technology actually work?' A POC is typically thrown away after the verification, as it is not an actual product, just a test rig.",
+                    zh_desc: "這個概念驗證是測試產品<b>單一風險最高技術假設</b>的最低限度努力。它是一個快速的內部實驗，旨在回答一個問題：「這個核心技術真的能奏效嗎？」概念驗證在驗證後通常會被丟棄，因為它不是一個實際產品，只是一個測試裝置。",
+                    en_activities: [
+                        "Identify the single highest-risk technical element.",
+                        "Build a non-polished, basic test setup (e.g., breadboard electronics).",
+                        "Run the core experiment to validate the principle.",
+                        "Document the outcome (Success/Fail) and decide if the project can proceed."
+                    ],
+                    zh_activities: [
+                        "識別單一風險最高的技術元素。",
+                        "建立一個不精美、基礎的測試裝置（例如，麵包板電子元件）。",
+                        "運行核心實驗以驗證原理。",
+                        "記錄結果（成功/失敗）並決定項目是否可以繼續。"
+                    ],
+                    en_example: "POC Focus: The riskiest assumption is the <b>AI's ability to handle ambiguous input and return structured data</b>. A minimal backend POC is built to test if the Gemini API can convert a text prompt like 'I have half a bag of onions and some old chicken' into a valid, recipe-ready JSON structure with $\ge 90\\%$ consistency.",
+                    zh_example: "POC 焦點：風險最高的假設是<b>AI 處理模糊輸入和返回結構化數據的能力</b>。構建一個最小的後端 POC，以測試 Gemini API 是否可以將「我有一半洋蔥和一些舊雞肉」這樣的文本提示轉換為有效的、食譜準備就緒的 JSON 結構，且一致性 $\ge 90\\%$。",
+                    icon: icons.FlaskConical
+                },
+                {
+                    en_title: "Rapid Function and Features Test",
+                    zh_title: "快速功能與特性測試",
+                    en_desc: "This stage focuses on <b>de-risking key user interactions</b> before committing to a final, expensive design. It involves building low-fidelity models (like paper prototypes or basic software wireframes) to test if the product's main functional flows are intuitive and meet basic user needs. Iteration is rapid and cheap here to save time later.",
+                    zh_desc: "此階段的重點是在確定最終昂貴的設計之前，<b>降低關鍵用戶互動的風險</b>。它涉及建立低保真模型（例如紙質原型或基本軟件線框圖），以測試產品的主要功能流程是否直觀並滿足基本用戶需求。這裡的迭代是快速且廉價的，以便節省後續的時間。",
+                    en_activities: [
+                        "Create low-fidelity wireframes or mockups of the mobile app.",
+                        "Test key function flows with potential users (e.g., 'How do you set your hydration goal?').",
+                        "Build basic physical models to test ergonomics (Does it fit in a cup holder?).",
+                        "Refine functional requirements based on early user feedback."
+                    ],
+                    zh_activities: [
+                        "創建移動應用程式的低保真線框圖或模型。",
+                        "與潛在用戶測試關鍵功能流程（例如：「您如何設定您的飲水目標？」）。",
+                        "建立基本物理模型以測試人體工程學（它是否適合杯架？）。",
+                        "根據早期用戶反饋改進功能需求。"
+                    ],
+                    en_example: "Testing: Building paper prototypes of the main shopping list to test one-handed use in a grocery cart. Wireframes are tested with users to check the flow for voice input and rapid swiping (checking items off) to ensure the core daily interaction is fast and error-free.",
+                    zh_example: "測試：構建主要購物清單的紙質原型，以測試在購物車中單手使用的情況。使用線框圖對用戶進行測試，以檢查語音輸入和快速滑動（勾選項目）的流程，以確保核心日常互動快速且沒有錯誤。",
+                    icon: icons.SlidersHorizontal
+                },
+                {
+                    en_title: "Product Specification & Customer Requirements",
+                    zh_title: "產品規格與客戶需求",
+                    en_desc: "This is the creation of the <b>Product Requirement Document (PRD)</b>. It is a formal, detailed 'contract' that specifies <b>exactly</b> what the final product must be able to do. It translates the emotional and subjective '<b>Voice of the Customer (VOC)</b>' into measurable, objective requirements for the engineering team. This document guides the rest of the project.",
+                    zh_desc: "這是<b>產品需求文件 (PRD)</b> 的創建。這是一份正式、詳細的「合同」，它<b>精確地</b>規定了最終產品必須能夠做什麼。它將情感和主觀的「<b>客戶之聲 (VOC)</b>」轉化為工程團隊可衡量的、客觀的要求。這份文件指導著項目的其餘部分。",
+                    en_activities: [
+                        "Define all technical metrics (dimensions, weight, power consumption).",
+                        "Detail performance specifications (e.g., 'Insulation must maintain ice for 24 hours').",
+                        "Document all regulatory and safety standards (FCC, CE, etc.).",
+                        "Finalize the Bill of Materials (BOM) for the first production run."
+                    ],
+                    zh_activities: [
+                        "定義所有技術指標（尺寸、重量、功耗）。",
+                        "詳細說明性能規格（例如：「保溫必須維持冰塊 24 小時」）。",
+                        "記錄所有監管和安全標準（FCC、CE 等）。",
+                        "最終確定首次生產運行的物料清單 (BOM)。"
+                    ],
+                    en_example: "PRD Requirement: The app must generate and categorize lists with $\ge 98\\%$ accuracy. The main shopping list view must load in $< 1$ second on mobile. Compliance: Adherence to Apple/Google App Store guidelines, and full implementation of CCPA/GDPR rules for user data privacy (critical for a daily-use, data-heavy app).",
+                    zh_example: "PRD 要求：應用程式必須以 $\ge 98\\%$ 的準確性生成和分類清單。主購物清單視圖必須在移動設備上以 $< 1$ 秒的速度加載。合規性：遵守 Apple/Google 應用程式商店指南，並全面實施 CCPA/GDPR 規則以保護用戶數據隱私（對於日常使用、數據密集的應用程式至關重要）。",
+                    icon: icons.FileText
+                },
+                {
+                    en_title: "Design (Detailed Engineering)",
+                    zh_title: "設計 (詳細工程)",
+                    en_desc: "This is the heavy engineering phase where specifications are converted into buildable reality. Engineers use Computer-Aided Design (<b>CAD</b>) software to create 3D models of every part. Focus is placed on <b>Design for Manufacturing (DFM)</b>—ensuring the parts can be built efficiently—and <b>Design for Assembly (DFA)</b>—ensuring the parts can be put together easily.",
+                    zh_desc: "這是繁重的工程階段，規格被轉化為可建造的現實。工程師使用電腦輔助設計 (<b>CAD</b>) 軟件來創建每個零件的 3D 模型。重點放在<b>製造設計 (DFM)</b>—確保零件可以高效建造—以及<b>裝配設計 (DFA)</b>—確保零件可以輕鬆組裝。",
+                    en_activities: [
+                        "Finalize all 3D part geometries and create detailed engineering drawings.",
+                        "Design the printed circuit board (PCB) layout and firmware architecture.",
+                        "Run stress and thermal simulations on critical components.",
+                        "Review and approve the final BOM before ordering parts."
+                    ],
+                    zh_activities: [
+                        "最終確定所有 3D 零件幾何形狀並創建詳細的工程圖。",
+                        "設計印刷電路板 (PCB) 佈局和固件架構。",
+                        "對關鍵組件運行應力與熱能模擬。",
+                        "在訂購零件之前審查和批准最終的物料清單 (BOM)。"
+                    ],
+                    en_example: "Engineering Activity: Designing the Firestore database schema for real-time list synchronization. Architecting the cloud function that wraps the Gemini API call to ensure data is sanitized and the structured JSON output is achieved with minimal latency. Detailed design of the mobile UI components for large-finger tapping (accessibility).",
+                    zh_example: "工程活動：設計用於實時清單同步的 Firestore 數據庫架構。架構包裹 Gemini API 調用的雲功能，以確保數據經過清理，並以最小的延遲實現結構化 JSON 輸出。為大手指點擊設計移動 UI 組件的詳細設計（可訪問性）。",
+                    icon: icons.Ruler
+                },
+                {
+                    en_title: "Prototype",
+                    zh_title: "原型 (Prototype)",
+                    en_desc: "The creation of the <b>first full-scale, physical model</b> that includes the intended form, fit, and function. Prototypes are often made using rapid methods like 3D printing or soft tooling and are primarily used for internal evaluation and user feedback on usability, not mass production quality.",
+                    zh_desc: "創建<b>第一個全尺寸、物理模型</b>，包括預期的形狀、裝配和功能。原型通常使用 3D 列印或軟模具等快速方法製作，主要用於內部評估和用戶對可用性的反饋，而不是大規模生產質量。",
+                    en_activities: [
+                        "Order custom parts (PCBs, special sensors).",
+                        "Assemble a handful of working units by hand.",
+                        "Test for basic system integration (Do the hardware and software talk?).",
+                        "Hold 'usability testing' sessions with real users."
+                    ],
+                    zh_activities: [
+                        "訂購定制零件（PCB、特殊感應器）。",
+                        "手工組裝少量工作單元。",
+                        "測試基本系統整合（硬體和軟體是否能互相通訊？）。",
+                        "與真實用戶進行「可用性測試」會議。"
+                    ],
+                    en_example: "Prototype Build: A fully functional prototype app (Alpha version) is released internally to the development team. Testing: Focus is on the full loop: Voice input $\rightarrow$ Backend/Gemini API $\rightarrow$ Structured List update. We ensure the real-time database sync works when the user quickly adds and removes items.",
+                    zh_example: "原型建造：一個功能齊全的原型應用程式（Alpha 版本）在內部發佈給開發團隊。測試：重點在於完整的循環：語音輸入 $\rightarrow$ 後端/Gemini API $\rightarrow$ 結構化清單更新。我們確保當用戶快速添加和刪除項目時，實時數據庫同步有效。",
+                    icon: icons.Box
+                },
+                {
+                    en_title: "Validation and Verification (V&V) Test",
+                    zh_title: "確認與驗證測試 (V&V)",
+                    en_desc: "This is the formal quality gate. <b>Verification</b> asks, 'Did we build the product <b>right</b>? (Does it meet the PRD?)' <b>Validation</b> asks, 'Did we build the <b>right</b> product? (Does it solve the customer's problem?)' Both must pass to ensure the product is technically sound and commercially relevant.",
+                    zh_desc: "這是正式的質量關卡。<b>驗證</b>詢問：「我們是否<b>正確地</b>構建了產品？（它符合 PRD 嗎？）」<b>確認</b>詢問：「我們是否構建了<b>正確</b>的產品？（它解決了客戶的問題嗎？）」兩者都必須通過，以確保產品在技術上可靠且具有商業價值。",
+                    en_activities: [
+                        "Verification Testing: Running laboratory tests (e.g., thermal, drop, vibration) to ensure all specifications are met.",
+                        "Validation Testing: Conducting pilot studies with users to confirm the product delivers the intended benefit (e.g., improved hydration).",
+                        "Documenting all test results against the PRD requirements.",
+                        "Identifying and resolving any non-conformance issues."
+                    ],
+                    zh_activities: [
+                        "驗證測試：運行實驗室測試（例如，熱能、跌落、振動）以確保所有規格都得到滿足。",
+                        "確認測試：與用戶進行試點研究，以確認產品提供了預期的益處（例如，改善水分攝取）。",
+                        "記錄所有測試結果與 PRD 要求。",
+                        "識別和解決任何不合格問題。"
+                    ],
+                    en_example: "Verification: Automated end-to-end testing confirms that all API routes and data encryption methods (security) meet the PRD specs. <b>Validation:</b> A pilot group of 50 users reports they save an average of 15 minutes per shopping trip due to auto-categorization and smart suggestions, confirming the product's core value.",
+                    zh_example: "驗證：自動化端到端測試確認所有 API 路由和數據加密方法（安全性）符合 PRD 規格。<b>確認：</b>由 50 名用戶組成的試點小組報告稱，由於自動分類和智能建議，他們平均每次購物節省 15 分鐘，證實了產品的核心價值。",
+                    icon: icons.ShieldCheck
+                },
+                {
+                    en_title: "Acceptance Test Plan (ATP)",
+                    zh_title: "驗收測試計畫 (ATP)",
+                    en_desc: "The <b>ATP</b> is a final, highly formal battery of tests often performed by a third-party quality control (QC) team or the customer themselves. It confirms that the product is ready to be released to the factory for mass production. This is the <b>last chance</b> to catch errors before significant investment in tooling and inventory.",
+                    zh_desc: "<b>驗收測試計畫</b>是一套最終的、高度正式的測試，通常由第三方品質管制 (QC) 團隊或客戶本身執行。它確認產品已準備好發佈到工廠進行大規模生產。這是<b>最後的機會</b>，可以在對模具和庫存進行重大投資之前捕獲錯誤。",
+                    en_activities: [
+                        "Define the 'Go/No-Go' criteria for mass production release.",
+                        "Execute highly detailed, scripted tests by a QC team.",
+                        "Verify compliance with critical safety and regulatory standards.",
+                        "Obtain final sign-off from all stakeholders (Engineering, Marketing, Legal) that the design is frozen."
+                    ],
+                    zh_activities: [
+                        "定義大規模生產發佈的「通過/不通過」標準。",
+                        "由品質管制團隊執行高度詳細、腳本化的測試。",
+                        "驗證是否符合關鍵安全和監管標準。",
+                        "獲得所有利益相關者（工程、市場、法務）的最終簽字，確認設計已凍結。"
+                    ],
+                    en_example: "ATP Scenario: A formal QC team executes a test where 10 users must generate a list of 20 items from 5 vague meal ideas (processed by the AI) and complete the 'shopping' action in a simulated environment in under 8 minutes. Any error in list synchronization, item duplication, or poor AI recipe suggestion fails the entire test batch.",
+                    zh_example: "ATP 情境：一個正式的 QC 團隊執行一項測試，其中 10 名用戶必須從 5 個模糊的膳食想法（由 AI 處理）生成 20 個項目的清單，並在模擬環境中在 8 分鐘內完成「購物」操作。清單同步、項目重複或 AI 食譜建議不佳的任何錯誤都會導致整個測試批次失敗。",
+                    icon: icons.ClipboardCheck
+                },
+                {
+                    en_title: "Design Transfer to Manufacturing (DTM)",
+                    zh_title: "設計轉移到製造 (DTM)",
+                    en_desc: "This stage is the detailed hand-off from the engineering team to the factory team. It involves turning CAD files and specifications into floor-level instructions. The primary output is the <b>Manufacturing Process Plan</b>, which defines tools, workstations, and the order of operations needed to build the product reliably and repeatably.",
+                    zh_desc: "此階段是工程團隊向工廠團隊的詳細移交。它涉及將 CAD 文件和規格轉化為工廠層面的操作說明。主要產出是<b>製造流程計畫</b>，它定義了可靠和可重複地建造產品所需的工具、工作站和操作順序。",
+                    en_activities: [
+                        "Create Standard Operating Procedures (SOPs) for every assembly task.",
+                        "Select and qualify suppliers for all components.",
+                        "Design and build all production tooling, jigs, and fixtures.",
+                        "Train factory operators on the new assembly and test procedures."
+                    ],
+                    zh_activities: [
+                        "為每個裝配任務創建標準操作程序 (SOP)。",
+                        "選擇並認證所有組件的供應商。",
+                        "設計和建造所有生產模具、夾具和固定裝置。",
+                        "培訓工廠操作員關於新的裝配和測試程序。"
+                    ],
+                    en_example: "DTM Activity (Software): Creating detailed deployment SOPs for the DevOps team. This includes setting up automated continuous integration/continuous deployment (CI/CD) pipelines, defining database migration scripts, and establishing auto-scaling rules for the cloud servers to handle millions of daily active users reliably.",
+                    zh_example: "DTM 活動（軟件）：為 DevOps 團隊創建詳細的部署 SOP。這包括設置自動化持續集成/持續部署 (CI/CD) 管道，定義數據庫遷移腳本，並為雲服務器建立自動擴展規則，以可靠地處理數百萬日常活躍用戶。",
+                    icon: icons.Factory
+                },
+                {
+                    en_title: "Engineering Sample (Alpha Units)",
+                    zh_title: "工程樣品 (Alpha 批次)",
+                    en_desc: "The <b>first products off the actual production line</b>. These Alpha units are built using the finalized DTM process and permanent tooling, but in small quantities. Their purpose is to validate the manufacturing process itself—to confirm the factory can build the product according to design specifications consistently. They are strictly for internal testing.",
+                    zh_desc: "<b>實際生產線上的第一批產品</b>。這些 Alpha 單元是使用最終確定的 DTM 流程和永久模具建造的，但數量很少。它們的目的是驗證製造過程本身—確認工廠可以根據設計規格始終如一地建造產品。它們嚴格用於內部測試。",
+                    en_activities: [
+                        "Run the first small batch build (e.g., 50-100 units).",
+                        "Measure key dimensional and performance parameters to check for process variation.",
+                        "Identify and debug immediate manufacturing defects (e.g., parts not fitting).",
+                        "Confirm that the factory's in-line quality checks are working."
+                    ],
+                    zh_activities: [
+                        "運行第一個小批量建造（例如，50-100 個單位）。",
+                        "測量關鍵尺寸和性能參數以檢查過程變異。",
+                        "識別和調試即時製造缺陷（例如，零件不合適）。",
+                        "確認工廠的在線質量檢查正在運作。"
+                    ],
+                    en_example: "Alpha Testing: The first internal deployment to employee phones (50 users) reveals a significant bug: the list sometimes fails to synchronize when switching from Wi-Fi to cellular data. The CI/CD pipeline is halted, and immediate debugging focuses on the network transition logic (a software equivalent of stopping the assembly line).",
+                    zh_example: "Alpha 測試：對員工手機的首次內部部署（50 個用戶）揭示了一個重大錯誤：當從 Wi-Fi 切換到蜂窩數據時，清單有時無法同步。CI/CD 管道被暫停，立即調試重點放在網絡轉換邏輯上（相當於停止裝配線的軟件）。",
+                    icon: icons.PackageOpen
+                },
+                {
+                    en_title: "Pilot Sample (Beta Units)",
+                    zh_title: "小批量試產樣品 (Beta 批次)",
+                    en_desc: "This is a larger, pre-launch production run. Beta units are used for <b>external testing in the real world</b>, not just manufacturing checks. They are sent to a select group of users to test the entire ecosystem: packaging, shipping logistics, customer support processes, and full-scale product reliability outside of a controlled environment.",
+                    zh_desc: "這是一個更大規模的預發佈試產。Beta 單元用於<b>在現實世界中進行外部測試</b>，而不僅僅是製造檢查。它們被發送給選定的用戶群體，以測試整個生態系統：包裝、運輸物流、客戶支持流程，以及在受控環境之外的全面產品可靠性。",
+                    en_activities: [
+                        "Run a medium-sized batch (e.g., 500-1,000 units) to test production volume.",
+                        "Ship units to 'friendly' customers to test unboxing experience and long-term durability.",
+                        "Test customer support readiness (Do agents know how to troubleshoot the bottle?).",
+                        "Finalize and optimize logistics and inventory management processes."
+                    ],
+                    zh_activities: [
+                        "運行中等規模的批次（例如，500-1,000 個單位）以測試生產量。",
+                        "將單位運送給「友好」客戶，測試開箱體驗和長期耐用性。",
+                        "測試客戶支持的準備情況（客服人員是否知道如何排除瓶子的故障？）。",
+                        "最終確定和優化物流及庫存管理流程。"
+                    ],
+                    en_example: "Beta Feedback: 500 external users test the app. Feedback highlights that the initial pantry entry is too tedious (UX failure). Also, users report that the AI frequently suggests recipes that are 'too complex.' Both the UX flow and the Gemini API system instructions (to prioritize simple recipes) are revised.",
+                    zh_example: "Beta 反饋：500 名外部用戶測試應用程式。反饋強調初始食品儲藏室輸入太過繁瑣（用戶體驗失敗）。此外，用戶報告 AI 經常建議「過於複雜」的食譜。用戶體驗流程和 Gemini API 系統指令（優先考慮簡單食譜）都進行了修訂。",
+                    icon: icons.Globe
+                },
+                {
+                    en_title: "Release to Mass Production",
+                    zh_title: "發佈大規模生產",
+                    en_desc: "The final sign-off (often called the <b>Go-To-Market Decision</b>). All quality checks, user feedback, and manufacturing processes have been approved. The factory is officially cleared to scale up production to full volume, and the marketing and sales teams execute the commercial launch plan. This transition marks the end of development and the start of the commercial phase.",
+                    zh_desc: "最終簽字（通常稱為<b>進入市場決策</b>）。所有質量檢查、用戶反饋和製造流程都已獲得批准。工廠正式獲准將產量擴大到全面規模，市場和銷售團隊執行商業發佈計畫。這個轉變標誌著開發的結束和商業階段的開始。",
+                    en_activities: [
+                        "Marketing team launches the product announcement and advertisement campaigns.",
+                        "Manufacturing team ramps up production capacity to meet forecasts.",
+                        "Distribution partners (retailers, online stores) begin receiving inventory.",
+                        "Final cost of goods sold (COGS) is locked for financial planning."
+                    ],
+                    zh_activities: [
+                        "營銷團隊發佈產品公告和廣告活動。",
+                        "製造團隊提高產能以滿足預測。",
+                        "分銷夥伴（零售商、在線商店）開始接收庫存。",
+                        "最終的銷售成本 (COGS) 被鎖定用於財務規劃。"
+                    ],
+                    en_example: "Launch Day: Marketing launches a campaign focused on 'Save Time, Stop Waste.' The DevOps team monitors server load, ensuring the cloud environment auto-scales to handle the millions of new list generation requests and data synchronization for the projected daily active users (DAU).",
+                    zh_example: "發佈日：營銷團隊發佈了一項重點關注「節省時間，停止浪費」的活動。DevOps 團隊監控服務器負載，確保雲環境自動擴展，以處理預計日常活躍用戶 (DAU) 的數百萬新清單生成請求和數據同步。",
+                    icon: icons.Rocket
+                },
+                {
+                    en_title: "Product Services",
+                    zh_title: "產品服務",
+                    en_desc: "This post-launch phase is focused on sustaining and improving the product while it is on the market. It involves gathering <b>field data</b> from users to identify bugs, defects, or opportunities for cost reduction. Any design modification after launch is handled through a formal <b>Engineering Change (EC)</b> process to ensure traceability and quality.",
+                    zh_desc: "這個發佈後階段側重於維護和改進產品，同時它也在市場上銷售。它涉及收集來自用戶的<b>現場數據</b>，以識別錯誤、缺陷或成本降低的機會。發佈後的任何設計修改都通過正式的<b>工程變更 (EC)</b> 流程進行處理，以確保可追溯性和質量。",
+                    en_activities: [
+                        "Monitor customer support tickets and product return rates (RMAs).",
+                        "Analyze field failure data to identify systematic design flaws.",
+                        "Implement Engineering Changes (ECs) for bug fixes, cost reduction, or feature enhancements.",
+                        "Plan for future generations or retirement (End-of-Life) of the product."
+                    ],
+                    zh_activities: [
+                        "監控客戶支持工單和產品退貨率 (RMA)。",
+                        "分析現場故障數據以識別系統性設計缺陷。",
+                        "實施工程變更 (EC) 以進行錯誤修復、成本降低或功能增強。",
+                        "規劃產品的未來世代或退役（生命週期結束）。"
+                    ],
+                    en_example: "Sustaining Activity: Monitoring shows a $2\\%$ user churn rate due to 'recipes being too time-consuming.' An <b>Engineering Change (EC)</b> is raised to update the system instructions sent to the Gemini API, adding a constraint: 'Prioritize recipes with less than 6 preparation steps and a total time under 30 minutes.' This is deployed as a new backend release (v1.1).",
+                    zh_example: "維護活動：監控顯示 $2\\%$ 的用戶流失率是由於「食譜太耗時」。提出了<b>工程變更 (EC)</b>，以更新發送給 Gemini API 的系統指令，增加一個約束：「優先考慮準備步驟少於 6 步且總時間少於 30 分鐘的食譜。」這作為新的後端版本（v1.1）部署。",
+                    icon: icons.Tool
+                }
+            ];
+            // --- END OF DETAILED STEP DATA ---
+
+            const stepperContainer = document.querySelector('#stepper > div');
+            const contentCard = document.getElementById('content-card');
+            const contentIcon = document.getElementById('content-icon');
+            const contentTitle = document.getElementById('content-title');
+            const contentTitleZh = document.getElementById('content-title-zh');
+            const contentEn = document.getElementById('content-en');
+            const contentZh = document.getElementById('content-zh');
+            
+            const contentEnActivities = document.getElementById('content-en-activities'); 
+            const contentZhActivities = document.getElementById('content-zh-activities');
+            
+            const contentEnExample = document.getElementById('content-en-example'); 
+            const contentZhExample = document.getElementById('content-zh-example'); 
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const langToggle = document.getElementById('lang-toggle');
+            const body = document.body;
+
+            let currentStep = 0;
+
+            function createActivityList(activities, containerElement) {
+                containerElement.innerHTML = '';
+                activities.forEach(activity => {
+                    const li = document.createElement('li');
+                    li.textContent = activity;
+                    containerElement.appendChild(li);
+                });
+            }
+
+            function renderStepper() {
+                stepperContainer.innerHTML = '';
+                stepsData.forEach((step, index) => {
+                    const stepElement = document.createElement('div');
+                    stepElement.className = 'step flex items-center p-3 rounded-lg cursor-pointer hover:bg-slate-100 transition w-full lg:w-auto mb-1 lg:mb-2 mr-2 lg:mr-0 flex-shrink-0 border-2 border-transparent';
+                    stepElement.dataset.index = index;
+                    
+                    const stepCircle = document.createElement('div');
+                    stepCircle.className = 'step-circle w-7 h-7 rounded-full border-2 border-slate-300 flex items-center justify-center font-bold text-slate-500 mr-3 flex-shrink-0 text-sm';
+                    stepCircle.textContent = index + 1;
+                    
+                    const stepText = document.createElement('div');
+                    stepText.className = 'font-medium text-sm text-slate-700';
+                    stepText.innerHTML = `<span class="lang-en">${step.en_title.split('(')[0]}</span><span class="lang-zh">${step.zh_title.split('(')[0]}</span>`;
+
+                    stepElement.appendChild(stepCircle);
+                    stepElement.appendChild(stepText);
+                    stepperContainer.appendChild(stepElement);
+                });
+            }
+
+            function updateContent(index) {
+                contentCard.classList.remove('active');
+                
+                setTimeout(() => {
+                    const step = stepsData[index];
+                    // Update content with SVG icon (using innerHTML)
+                    contentIcon.innerHTML = step.icon; 
+                    contentTitle.textContent = step.en_title;
+                    contentTitleZh.textContent = step.zh_title;
+                    
+                    // --- FIX APPLIED HERE: Using innerHTML to render the <b> tags ---
+                    contentEn.innerHTML = step.en_desc;
+                    contentZh.innerHTML = step.zh_desc;
+                    contentEnExample.innerHTML = step.en_example;
+                    contentZhExample.innerHTML = step.zh_example;
+                    // -----------------------------------------------------------------
+                    
+                    createActivityList(step.en_activities, contentEnActivities);
+                    createActivityList(step.zh_activities, contentZhActivities);
+
+                    document.querySelectorAll('.step').forEach((el, i) => {
+                        el.classList.toggle('active', i === index);
+                        if (i === index) {
+                            el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                        }
+                    });
+
+                    prevBtn.disabled = index === 0;
+                    nextBtn.disabled = index === stepsData.length - 1;
+                    
+                    // Set the current step index for visual reference
+                    currentStep = index;
+
+                    contentCard.classList.add('active');
+                }, 150);
+            }
+
+            stepperContainer.addEventListener('click', (e) => {
+                const stepElement = e.target.closest('.step');
+                if (stepElement) {
+                    const index = parseInt(stepElement.dataset.index);
+                    updateContent(index);
+                }
+            });
+
+            prevBtn.addEventListener('click', () => {
+                if (currentStep > 0) {
+                    updateContent(currentStep - 1);
+                }
+            });
+
+            nextBtn.addEventListener('click', () => {
+                if (currentStep < stepsData.length - 1) {
+                    updateContent(currentStep + 1);
+                }
+            });
+            
+            langToggle.addEventListener('click', () => {
+                if (body.classList.contains('lang-en')) {
+                    body.classList.remove('lang-en');
+                    body.classList.add('lang-zh');
+                } else {
+                    body.classList.remove('lang-zh');
+                    body.classList.add('lang-en');
+                }
+            });
+
+            renderStepper();
+            updateContent(currentStep);
+        });
+    </script>
+</body>
+</html>
