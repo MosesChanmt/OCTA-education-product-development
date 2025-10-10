@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Product Roadmap</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles for the bilingual feature */
+        :root {
+            --primary-color: #4f46e5;
+            --secondary-color: #818cf8;
+            --bg-light: #f9fafb;
+            --text-dark: #1f2937;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s;
+        }
+
+        /* Styling for the stepper items */
+        .step-item {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            z-index: 10;
+        }
+
+        .step-item.active .step-number {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.4), 0 2px 4px -2px rgba(79, 70, 229, 0.4);
+            transform: scale(1.1);
+        }
+
+        .step-item:not(.active):hover .step-number {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .step-item.active .step-title {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .step-number {
+            width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            border-radius: 9999px;
+            background-color: #e5e7eb;
+            color: var(--text-dark);
+            transition: all 0.2s ease;
+        }
+
+        /* Stepper separator lines */
+        .stepper-line {
+            position: absolute;
+            left: 1.2rem;
+            top: 2.5rem;
+            bottom: 0;
+            width: 2px;
+            background-color: #e5e7eb;
+            z-index: 1;
+        }
+        .step-item:last-child .stepper-line {
+            display: none;
+        }
+
+        /* Content card animation */
+        .card-content {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Language specific styling */
+        .lang-en [data-lang="zh"],
+        .lang-zh [data-lang="en"] {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 md:p-8 lang-en">
+    <!-- Main Application Container -->
+    <div class="max-w-7xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden">
+        <header class="p-6 bg-white border-b border-gray-200 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <h1 class="text-3xl font-extrabold text-indigo-700">
+                <span data-lang="en">Product Development Roadmap</span>
+                <span data-lang="zh">產品開發生命週期藍圖</span>
+            </h1>
+            
+            <!-- Language Toggle Button -->
+            <button id="lang-toggle" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 shadow-md">
+                <span data-lang="en">切換到中文</span>
+                <span data-lang="zh">Switch to English</span>
+            </button>
+        </header>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-4">
+            
+            <!-- Sidebar / Stepper Navigation -->
+            <nav id="stepper-nav" class="lg:col-span-1 p-6 border-r border-gray-200 bg-gray-50 overflow-y-auto max-h-[80vh]">
+                <div id="steps-container" class="space-y-6 relative">
+                    <!-- Steps will be dynamically injected here -->
+                </div>
+            </nav>
+
+            <!-- Main Roadmap Content Area -->
+            <main class="lg:col-span-3 p-6 md:p-10">
+                <div id="content-card" class="card-content bg-white p-6 rounded-xl shadow-lg border border-gray-100 min-h-[60vh] flex flex-col justify-between">
+                    <div>
+                        <!-- Icon -->
+                        <div id="stage-icon" class="text-6xl text-indigo-500 mb-6"></div>
+                        
+                        <!-- Title -->
+                        <h2 id="stage-title" class="text-4xl font-bold text-gray-900 mb-4"></h2>
+                        <p id="stage-bilingual-title" class="text-xl font-medium text-indigo-600 mb-6"></p>
+
+                        <!-- Description -->
+                        <h3 class="text-2xl font-semibold text-gray-700 mb-3 border-b pb-1">
+                            <span data-lang="en">Description</span>
+                            <span data-lang="zh">階段描述</span>
+                        </h3>
+                        <p id="stage-description" class="text-gray-600 mb-6 leading-relaxed"></p>
+
+                        <!-- Key Activities -->
+                        <h3 class="text-2xl font-semibold text-gray-700 mb-3 border-b pb-1">
+                            <span data-lang="en">Key Activities</span>
+                            <span data-lang="zh">關鍵活動</span>
+                        </h3>
+                        <ul id="stage-activities" class="list-disc list-inside space-y-2 text-gray-600 mb-6 pl-4"></ul>
+
+                        <!-- Example -->
+                        <h3 class="text-2xl font-semibold text-gray-700 mb-3 border-b pb-1">
+                            <span data-lang="en">Example: Robot Cleaner</span>
+                            <span data-lang="zh">範例：清潔機器人</span>
+                        </h3>
+                        <p id="stage-example" class="text-gray-500 italic"></p>
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <div class="mt-8 flex justify-between">
+                        <button id="prev-btn" class="flex items-center space-x-2 px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                            </svg>
+                            <span data-lang="en">Previous</span>
+                            <span data-lang="zh">上一步</span>
+                        </button>
+                        <button id="next-btn" class="flex items-center space-x-2 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <span data-lang="en">Next</span>
+                            <span data-lang="zh">下一步</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // --- Roadmap Data Definition ---
+        const roadmapData = [
+            {
+                id: 1,
+                icon: '💡',
+                en: {
+                    title: 'Idea Generation & Research',
+                    bilingualTitle: 'Phase 1: Concept & Discovery',
+                    description: 'The starting point where market gaps, <b>customer pain points</b>, and potential product opportunities are identified through <b>brainstorming</b>, <b>competitive analysis</b>, and <b>preliminary market research</b>.',
+                    activities: ['Market research & competitive analysis', 'Define target audience', 'Brainstorm initial solutions', 'Preliminary feasibility study'],
+                    example: 'Team identifies market saturation in single-function devices (vacuums or mops) and sees a clear opportunity for an integrated <b>3-in-1 robot (vacuum + mop + sweep)</b>. Initial research confirms that users are tired of managing multiple devices and that <b>simultaneous functionality</b> is a highly desired feature in the premium segment.'
+                },
+                zh: {
+                    title: '概念發想與研究',
+                    bilingualTitle: '階段一：概念與發現',
+                    description: '透過<b>腦力激盪</b>、<b>競爭分析</b>和<b>初步市場研究</b>，識別<b>市場空白</b>、<b>客戶痛點</b>和潛在產品機會的起點。',
+                    activities: ['市場研究與競爭分析', '定義目標受眾', '發想初步解決方案', '初步可行性研究'],
+                    example: '團隊發現單功能設備（吸塵器或拖把）市場飽和，看到了整合式 <b>3 合 1 機器人（吸塵器 + 拖把 + 掃地）</b>的明確機會。初步研究證實，用戶厭倦了管理多個設備，並且在高端市場中，<b>同步功能</b>是一個高度渴望的功能。'
+                }
+            },
+            {
+                id: 2,
+                icon: '🛠️',
+                en: {
+                    title: 'Concept Development & Validation',
+                    bilingualTitle: 'Phase 2: Define & Test',
+                    description: 'Turning the initial idea into a defined concept, including creating <b>value propositions</b>, basic feature lists, and testing the <b>core concept</b> with potential users.',
+                    activities: ['Develop Value Proposition', 'Define Minimum Viable Product (MVP) features', 'Run concept validation surveys/interviews', 'Create business case'],
+                    example: 'Create a simple prototype showcasing simultaneous vacuuming and mopping capabilities. Conduct focus groups to test demand for a seamless <b>sweeping function</b> and to validate the <b>premium pricing model</b> against the combined value of three distinct cleaning methods.'
+                },
+                zh: {
+                    title: '概念發展與驗證',
+                    bilingualTitle: '階段二：定義與測試',
+                    description: '將初步想法轉變為明確的概念，包括創建<b>價值主張</b>、基本功能清單，並與潛在用戶測試<b>核心概念</b>。',
+                    activities: ['發展價值主張', '定義最小可行產品 (MVP) 功能', '進行概念驗證調查/訪談', '建立商業案例'],
+                    example: '創建一個展示同步吸塵和拖地功能的簡單原型。進行焦點小組測試，確認對於無縫<b>掃地功能</b>的需求，並根據三種不同清潔方法的綜合價值來驗證<b>高端定價模型</b>。'
+                }
+            },
+            {
+                id: 3,
+                icon: '📝',
+                en: {
+                    title: 'Product Specification & Planning',
+                    bilingualTitle: 'Phase 3: Blueprint',
+                    description: 'Detailed documentation of the <b>product requirements</b>, <b>user stories</b>, <b>technical architecture</b>, and creation of a clear <b>project plan</b>, budget, and timeline.',
+                    activities: ['Write detailed product requirements document (PRD)', 'Map out user flows and technical architecture', 'Finalize budget and resource allocation', 'Establish project milestones'],
+                    example: 'Document core requirements: A high-performance $5000Pa$ <b>vacuum suction</b> motor, <b>dynamic pressure mopping</b> to scrub floors, <b>LiDAR navigation</b> for accurate mapping, and a single, intelligent system for managing dirt, dust, and water containment to prevent cross-contamination.'
+                },
+                zh: {
+                    title: '產品規格與規劃',
+                    bilingualTitle: '階段三：藍圖制定',
+                    description: '詳細記錄<b>產品需求</b>、<b>用戶故事</b>、<b>技術架構</b>，並建立清晰的<b>專案計畫</b>、預算和時間表。',
+                    activities: ['撰寫詳細的產品需求文件 (PRD)', '繪製用戶流程和技術架cture', '最終確定預算和資源分配', '確立專案里程碑'],
+                    example: '記錄核心要求：高性能的 $5000Pa$ <b>吸力</b>馬達、<b>動態壓力拖地</b>以擦洗地板、<b>LiDAR 導航</b>以實現精確地圖繪製，以及用於管理污垢、灰塵和水箱的單一智能系統，以防止交叉污染。'
+                }
+            },
+            {
+                id: 4,
+                icon: '🎨',
+                en: {
+                    title: 'Design & Prototyping (UX/UI)',
+                    bilingualTitle: 'Phase 4: Look & Feel',
+                    description: 'Focusing on the <b>user experience (UX)</b> and <b>user interface (UI)</b> to create mockups, <b>interactive prototypes</b>, and visual styling that aligns with the brand and <b>usability goals</b>.',
+                    activities: ['Create high-fidelity mockups', 'Develop interactive prototypes (e.g., in Figma)', 'Conduct usability testing on prototypes', 'Define design system and style guide'],
+                    example: 'Design the robot\'s hardware shell to be ultra-slim (less than $3.5$ inches high for under-furniture clearance), design the compact self-cleaning <b>docking station</b>, and build the mobile app\'s intuitive interface for creating <b>no-mop zones</b> and managing the three cleaning modes seamlessly.'
+                },
+                zh: {
+                    title: '設計與原型製作 (UX/UI)',
+                    bilingualTitle: '階段四：外觀與感受',
+                    description: '專注於<b>用戶體驗 (UX)</b> 和<b>用戶介面 (UI)</b>，創建符合品牌和<b>可用性目標</b>的線框圖、<b>互動原型</b>和視覺風格。',
+                    activities: ['創建高保真度模型', '開發互動式原型（例如：在 Figma 中）', '對原型進行可用性測試', '定義設計系統和風格指南'],
+                    example: '設計機器人的硬體外殼，使其超薄（高度低於 $3.5$ 英寸，以便能夠進入家具下方），設計緊湊的自清潔<b>充電座</b>，並構建行動應用程式的直觀介面，用於創建<b>無拖地區域</b>和無縫管理三種清潔模式。'
+                }
+            },
+            {
+                id: 5,
+                icon: '💻',
+                en: {
+                    title: 'Development & Implementation',
+                    bilingualTitle: 'Phase 5: Build',
+                    description: 'The core phase where the product is built according to the specifications and designs. This involves <b>coding</b>, setting up the <b>database</b>, and integrating various <b>modules</b>.',
+                    activities: ['Set up development environment', 'Frontend and backend coding', 'Database schema design and implementation', 'Regular code reviews and unit testing'],
+                    example: '<b>Embedded systems engineers</b> integrate the three core cleaning mechanisms. They write the complex <b>firmware</b> for precise sensor fusion, obstacle avoidance, and dynamic mapping. The <b>backend team</b> develops the cloud infrastructure necessary for secure map storage, user accounts, and remote scheduling control.'
+                },
+                zh: {
+                    title: '開發與實施',
+                    bilingualTitle: '階段五：構建',
+                    description: '根據規格和設計構建產品的核心階段。這涉及<b>編碼</b>、建立<b>資料庫</b>和整合各種<b>模組</b>。',
+                    activities: ['建立開發環境', '前端和後端編碼', '資料庫綱要設計和實施', '定期程式碼審查和單元測試'],
+                    example: '<b>嵌入式系統工程師</b>整合三個核心清潔機制。他們編寫複雜的<b>韌體</b>，用於精確的感測器融合、障礙物避讓和動態地圖繪製。<b>後端團隊</b>開發必要的雲端基礎設施，用於安全的地圖儲存、用戶帳戶和遠程排程控制。'
+                }
+            },
+            {
+                id: 6,
+                icon: '🐛',
+                en: {
+                    title: 'Testing & Quality Assurance (QA)',
+                    bilingualTitle: 'Phase 6: Verification',
+                    description: 'A critical phase focused on identifying and fixing <b>bugs</b>, ensuring the product meets all requirements, and verifying <b>performance</b>, <b>security</b>, and <b>usability</b>.',
+                    activities: ['Functional testing', 'Performance and load testing', 'Security audits', 'User Acceptance Testing (UAT) with a small group of users'],
+                    example: 'The <b>QA team</b> stress tests battery life across high-pile carpets, hard floors, and tile. They confirm the robot transitions smoothly between different floor types while maintaining water seals and check for any potential <b>water leakage</b> or clogging when switching rapidly between the vacuum and mop modes.'
+                },
+                zh: {
+                    title: '測試與品質保證 (QA)',
+                    bilingualTitle: '階段六：驗證',
+                    description: '專注於識別和修復<b>錯誤</b>、確保產品符合所有要求，並驗證<b>性能</b>、<b>安全性</b>和<b>可用性</b>的關鍵階段。',
+                    activities: ['功能測試', '性能和負載測試', '安全稽核', '與一小群用戶進行使用者驗收測試 (UAT)'],
+                    example: '<b>QA 團隊</b>對高絨地毯、硬地板和瓷磚上的電池壽命進行壓力測試。他們確認機器人在不同地板類型之間平穩過渡，同時保持水封，並檢查在吸塵和拖地模式之間快速切換時是否有潛在的<b>漏水</b>或堵塞。'
+                }
+            },
+            {
+                id: 7,
+                icon: '🚀',
+                en: {
+                    title: 'Pre-Launch & Soft Launch',
+                    bilingualTitle: 'Phase 7: Go-to-Market Prep',
+                    description: 'Final preparations for launch, including <b>marketing campaigns</b>, internal training, setting up <b>analytics</b>, and often a <b>soft launch</b> to a limited audience.',
+                    activities: ['Finalize marketing materials and press kits', 'Set up analytics tracking and monitoring dashboards', 'Internal team training', 'Soft launch (e.g., to one city or a small test group)'],
+                    example: 'Ship $1,000$ units to early access reviewers, select tech bloggers, and key media outlets. The goal is to gather crucial feedback on real-world performance, <b>battery efficiency</b>, long-term durability, and to optimize the <b>marketing messaging</b> before the full public unveiling.'
+                },
+                zh: {
+                    title: '預發布與軟發布',
+                    bilingualTitle: '階段七：上市準備',
+                    description: '發布前的最終準備工作，包括<b>行銷活動</b>、內部培訓、設定<b>分析工具</b>，以及通常會向有限受眾進行<b>軟發布</b>。',
+                    activities: ['最終確定行銷材料和新聞資料袋', '設定分析追蹤和監控儀表板', '內部團隊培訓', '軟發布（例如：向一個城市或一小群測試組）'],
+                    example: '將 $1000$ 台裝置運送給早期存取評論者、選定的科技部落客和主要媒體。目標是收集有關實際性能、<b>電池效率</b>、長期耐用性的關鍵回饋，並在全面公開發布之前優化<b>行銷資訊</b>。'
+                }
+            },
+            {
+                id: 8,
+                icon: '🎉',
+                en: {
+                    title: 'General Launch (Product Release)',
+                    bilingualTitle: 'Phase 8: Full Release',
+                    description: 'The official public release of the product. This requires coordinating all teams (<b>development</b>, <b>marketing</b>, <b>support</b>) for a unified and impactful launch.',
+                    activities: ['Publish to App Stores (Apple/Google)', 'Execute full marketing campaign', 'Announce release via PR and social media', 'Activate customer support channels'],
+                    example: 'Host a major press event showcasing the robot\'s <b>3-in-1 convenience</b> (vacuum, mop, sweep). Open pre-orders globally via the company website and major retailers. Launch a massive marketing campaign emphasizing the value proposition: <i>One Robot. Three Functions. Total Clean.</i>'
+                },
+                zh: {
+                    title: '全面發布（產品發行）',
+                    bilingualTitle: '階段八：完整發布',
+                    description: '產品的官方公開發布。這需要協調所有團隊（<b>開發</b>、<b>行銷</b>、<b>支援</b>），以實現統一且具影響力的發布。',
+                    activities: ['發布到應用程式商店（Apple/Google）', '執行全面的行銷活動', '透過公關和社群媒體宣布發布', '啟動客戶支援管道'],
+                    example: '舉辦一場大型新聞發布會，展示機器人<b>3 合 1 的便利性</b>（吸塵、拖地、掃地）。透過公司網站和主要零售商在全球開放預購。發起一項大規模的行銷活動，強調其價值主張：<i>一台機器人。三種功能。全面清潔。</i>'
+                }
+            },
+            {
+                id: 9,
+                icon: '📈',
+                en: {
+                    title: 'Post-Launch Monitoring & Feedback',
+                    bilingualTitle: 'Phase 9: Learn & React',
+                    description: 'Immediately after launch, the focus shifts to monitoring <b>key metrics</b>, gathering <b>user feedback</b> (reviews, support tickets), and addressing <b>critical issues</b> quickly.',
+                    activities: ['Monitor real-time crash reports and server load', 'Analyze initial adoption rates and user retention', 'Collect and categorize user feedback', 'Patch critical bugs (Hotfixes)'],
+                    example: 'Monitor first-week customer reviews and analyze support tickets. Identify a common complaint regarding the noise level when the sweeping brush operates on high-power mode, and prioritize the release of a <b>firmware update</b> within a week to adjust the motor speed and noise profile without impacting cleaning power significantly.'
+                },
+                zh: {
+                    title: '發布後監控與回饋',
+                    bilingualTitle: '階段九：學習與反應',
+                    description: '發布後，焦點立即轉向監控<b>關鍵指標</b>、收集<b>用戶回饋</b>（評論、支援工單），並迅速解決<b>關鍵問題</b>。',
+                    activities: ['監控即時崩潰報告和伺服器負載', '分析初始採用率和使用者保留率', '收集並分類使用者回饋', '修復關鍵錯誤（熱修復）'],
+                    example: '監控第一週的客戶評論並分析支援工單。識別出關於掃地刷在高功率模式下運行時噪音水準的常見投訴，並優先在一週內發布<b>韌體更新</b>，以調整馬達速度和噪音曲線，同時不顯著影響清潔能力。'
+                }
+            },
+            {
+                id: 10,
+                icon: '♻️',
+                en: {
+                    title: 'Iteration & Optimization',
+                    bilingualTitle: 'Phase 10: Improve',
+                    description: 'Based on data and feedback, the product team continually refines features, improves <b>performance</b>, and addresses <b>usability issues</b> to drive engagement and satisfaction.',
+                    activities: ['Prioritize backlog based on usage data', 'Plan and execute A/B tests on key features', 'Develop minor feature enhancements', 'Release regular monthly updates'],
+                    example: 'Use anonymized usage data to optimize default cleaning patterns, instructing the robot to perform <b>deep cleans</b> on high-traffic areas (like kitchens). Focus development efforts on improving <b>multi-floor mapping accuracy</b> and reducing the time required for the mop pad\'s <b>self-cleaning cycles</b>.'
+                },
+                zh: {
+                    title: '迭代與優化',
+                    bilingualTitle: '階段十：改進',
+                    description: '根據數據和回饋，產品團隊持續完善功能、提高<b>性能</b>並解決<b>可用性問題</b>，以提高參與度和滿意度。',
+                    activities: ['根據使用數據確定待辦事項的優先級', '計劃和執行關鍵功能的 A/B 測試', '開發次要功能增強', '發布定期的每月更新'],
+                    example: '利用匿名使用數據優化預設清潔模式，指示機器人對高流量區域（例如廚房）執行<b>深度清潔</b>。將開發重點放在提高<b>多樓層地圖繪製的準確性</b>和縮短拖布墊<b>自清潔週期</b>所需的耗時。'
+                }
+            },
+            {
+                id: 11,
+                icon: '✨',
+                en: {
+                    title: 'Growth & Expansion',
+                    bilingualTitle: 'Phase 11: Scale',
+                    description: 'Focusing on <b>scaling</b> the product and business, including entering <b>new markets</b>, <b>localizing</b> the product, and adding major new features to attract a broader audience.',
+                    activities: ['Develop and launch a premium subscription tier', 'Localize app content for new international markets', 'Integrate with new smart home appliances', 'Strategic partnerships for user acquisition'],
+                    example: 'Launch a <b>"Pro" model</b> with advanced <b>AI object recognition</b> capabilities, allowing the robot to safely avoid hazards like small cables or pet waste. Simultaneously, integrate the system with popular smart home platforms like <b>Google Home</b> and <b>Alexa</b> to expand the user base.'
+                },
+                zh: {
+                    title: '成長與擴展',
+                    bilingualTitle: '階段十一：規模化',
+                    description: '專注於擴大產品和業務的<b>規模</b>，包括進入<b>新市場</b>、產品<b>在地化</b>，並新增主要功能以吸引更廣泛的受眾。',
+                    activities: ['開發和推出高級訂閱層級', '為新的國際市場在地化應用程式內容', '與新的智能家居設備整合', '進行使用者獲取的戰略合作夥伴關係'],
+                    example: '推出具有先進 <b>AI 物體識別</b>功能（允許機器人安全避開小電纜或寵物排泄物）的<b>「專業」型號</b>。同時，將系統與流行的智能家居平台（如 <b>Google Home</b> 和 <b>Alexa</b>）整合，以擴大用戶群。'
+                }
+            },
+            {
+                id: 12,
+                icon: '🛡️',
+                en: {
+                    title: 'Maturity & Maintenance',
+                    bilingualTitle: 'Phase 12: Stability',
+                    description: 'The product is stable and well-established. Focus shifts from major feature releases to <b>maintenance</b>, minimizing <b>technical debt</b>, and defending <b>market share</b>.',
+                    activities: ['Regular security updates and patches', 'Refactor legacy code to reduce technical debt', 'Focus on customer retention strategies', 'Minor, incremental feature improvements based on long-tail requests'],
+                    example: 'The robot dominates the premium segment. The team dedicates resources to ensuring timely <b>security patches</b>, refining the companion app\'s interface based on user feedback, and establishing an efficient supply chain for replacement consumables like mop pads, brushes, and dust bags.'
+                },
+                zh: {
+                    title: '成熟與維護',
+                    bilingualTitle: '階段十二：穩定性',
+                    description: '產品穩定且成熟。重點從主要功能發布轉向<b>維護</b>、最小化<b>技術債務</b>和捍衛<b>市場份額</b>。',
+                    activities: ['定期安全更新和修補程式', '重構遺留程式碼以減少技術債務', '專注於客戶保留策略', '基於長尾請求進行微小、漸進的功能改進'],
+                    example: '該機器人在高端市場佔主導地位。團隊將資源專門用於確保及時的<b>安全補丁</b>、完善配套應用程式的介面，以及高效建立拖布墊、刷子和集塵袋等替換耗材的供應鏈。'
+                }
+            },
+            {
+                id: 13,
+                icon: '🔄',
+                en: {
+                    title: 'Decline, Re-evaluation, or Rejuvenation',
+                    bilingualTitle: 'Phase 13: Decision Point',
+                    description: 'Sales or engagement slows down. The team must decide whether to invest heavily in a <b>product overhaul</b> (<b>rejuvenation</b>) or plan for eventual retirement.',
+                    activities: ['Conduct deep-dive analysis on declining metrics', 'Identify core components to sunset or simplify', 'Explore new market segments for relaunch', 'Develop a strategic plan for product overhaul (e.g., v3.0) or end-of-life'],
+                    example: 'New competition launches cheaper robots with similar 3-in-1 features. The team decides to develop a <b>v2.0</b> with a game-changing <b>completely self-emptying and self-washing dock</b>, along with a new subscription service for automatic delivery of cleaning solutions and consumables (<b>rejuvenation</b>).'
+                },
+                zh: {
+                    title: '衰退、重新評估或重振',
+                    bilingualTitle: '階段十三：決策點',
+                    description: '銷售或參與度放緩。團隊必須決定是大力投資<b>產品全面檢修</b>（<b>重振</b>）還是規劃最終退役。',
+                    activities: ['對下降的指標進行深入分析', '確定要淘汰或簡化的核心組件', '探索新的市場區隔以進行重新發布', '制定產品全面檢修（例如：v3.0）或生命週期結束的戰略計劃'],
+                    example: '新競爭對手推出了具有相似 3 合 1 功能的更便宜機器人。團隊決定開發 <b>v2.0</b>，配備具有顛覆性變革的<b>完全自動清空和自清洗充電座</b>，以及針對清潔液和耗材自動交付的新訂閱服務（<b>重振</b>）。'
+                }
+            },
+            {
+                id: 14,
+                icon: '⚰️',
+                en: {
+                    title: 'Retirement (End of Life)',
+                    bilingualTitle: 'Phase 14: Sunset',
+                    description: 'The product is phased out. This involves <b>communicating</b> with users, <b>migrating data</b>, turning off <b>servers</b>, and ensuring compliance with <b>data retention policies</b>.',
+                    activities: ['Develop and communicate end-of-life plan to all users', 'Provide paths for data migration to alternative products', 'Gradually decommission servers and infrastructure', 'Final documentation and knowledge transfer'],
+                    example: 'Announce that the original <b>v1 model</b> will cease <b>firmware updates</b> and <b>cloud support</b> in $3$ years (offering $36$ months notice). Offer substantial trade-in discounts for users upgrading to the <b>v3 model</b> (the next-gen successor) to encourage transition and maintain customer loyalty.'
+                },
+                zh: {
+                    title: '退役（生命週期結束）',
+                    bilingualTitle: '階段十四：結束',
+                    description: '產品被逐步淘汰。這涉及與使用者<b>溝通</b>、<b>遷移數據</b>、關閉<b>伺服器</b>，並確保遵守<b>數據保留政策</b>。',
+                    activities: ['制定並向所有使用者傳達生命週期結束計劃', '提供數據遷移到替代產品的路徑', '逐步停用伺服器和基礎設施', '最終文件記錄和知識轉移'],
+                    example: '宣布原始 <b>v1 型號</b>將在 $3$ 年後停止<b>韌體更新</b>和<b>雲端支援</b>（提供 $36$ 個月的通知）。為升級到<b>v3 型號</b>（下一代繼任者）的使用者提供實質性的以舊換新折扣，以鼓勵過渡並維持客戶忠誠度。'
+                }
+            }
+        ];
+
+        let currentStageId = 1;
+        const body = document.body;
+        const stepsContainer = document.getElementById('steps-container');
+        const contentCard = document.getElementById('content-card');
+        const stageTitleEl = document.getElementById('stage-title');
+        const stageBilingualTitleEl = document.getElementById('stage-bilingual-title');
+        const stageDescriptionEl = document.getElementById('stage-description');
+        const stageActivitiesEl = document.getElementById('stage-activities');
+        const stageExampleEl = document.getElementById('stage-example');
+        const stageIconEl = document.getElementById('stage-icon');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const langToggleBtn = document.getElementById('lang-toggle');
+
+        // Function to render the steps in the sidebar
+        function renderSteps() {
+            stepsContainer.innerHTML = '';
+            const lang = body.classList.contains('lang-zh') ? 'zh' : 'en';
+
+            roadmapData.forEach((stage, index) => {
+                const isActive = stage.id === currentStageId;
+                const title = stage[lang].title;
+                
+                const stepElement = document.createElement('div');
+                stepElement.className = `step-item flex items-start space-x-4 p-2 rounded-lg ${isActive ? 'active bg-indigo-50' : 'hover:bg-gray-100'} transition duration-200`;
+                stepElement.setAttribute('data-id', stage.id);
+                stepElement.innerHTML = `
+                    <div class="relative flex-shrink-0">
+                        <div class="step-number text-sm">${stage.id}</div>
+                        ${index < roadmapData.length - 1 ? '<div class="stepper-line"></div>' : ''}
+                    </div>
+                    <div class="flex flex-col pt-1 pl-1">
+                        <p class="text-xs text-gray-400">
+                            <span data-lang="en">Phase ${stage.id}</span>
+                            <span data-lang="zh">階段 ${stage.id}</span>
+                        </p>
+                        <p class="step-title text-base font-medium text-gray-700">${title}</p>
+                    </div>
+                `;
+                
+                stepElement.addEventListener('click', () => {
+                    currentStageId = stage.id;
+                    updateUI();
+                });
+                stepsContainer.appendChild(stepElement);
+            });
+        }
+
+        // Function to render the main content card
+        function renderContent() {
+            const stage = roadmapData.find(s => s.id === currentStageId);
+            if (!stage) return;
+
+            // Determine language
+            const langKey = body.classList.contains('lang-zh') ? 'zh' : 'en';
+            const content = stage[langKey];
+
+            // Update main elements
+            stageIconEl.textContent = stage.icon;
+            stageTitleEl.textContent = content.title;
+            stageBilingualTitleEl.textContent = content.bilingualTitle;
+
+            // IMPORTANT: Switched to innerHTML to allow for <b> tags for bolding
+            stageDescriptionEl.innerHTML = content.description;
+            stageExampleEl.innerHTML = content.example;
+
+            // Update activities list
+            stageActivitiesEl.innerHTML = '';
+            content.activities.forEach(activity => {
+                const li = document.createElement('li');
+                li.textContent = activity;
+                stageActivitiesEl.appendChild(li);
+            });
+
+            // Update button states
+            prevBtn.disabled = currentStageId === 1;
+            nextBtn.disabled = currentStageId === roadmapData.length;
+
+            // Scroll to top of content
+            contentCard.parentElement.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Global UI update function
+        function updateUI() {
+            // Re-render content first (as it controls the fade-in animation)
+            renderContent();
+            
+            // Re-render navigation (to update active state)
+            renderSteps();
+        }
+
+        // --- Event Listeners ---
+        
+        // Navigation buttons
+        prevBtn.addEventListener('click', () => {
+            if (currentStageId > 1) {
+                currentStageId--;
+                updateUI();
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentStageId < roadmapData.length) {
+                currentStageId++;
+                updateUI();
+            }
+        });
+
+        // Language toggle
+        langToggleBtn.addEventListener('click', () => {
+            const isZh = body.classList.toggle('lang-zh');
+            if (!isZh) {
+                body.classList.remove('lang-zh');
+                body.classList.add('lang-en');
+            } else {
+                body.classList.remove('lang-en');
+                body.classList.add('lang-zh');
+            }
+            updateUI(); // Re-render all elements with the new language
+        });
+
+        // Initial load
+        window.onload = function() {
+            updateUI();
+        };
+    </script>
+</body>
+</html>
