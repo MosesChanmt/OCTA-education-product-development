@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Product Roadmap</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles for the bilingual feature */
+        :root {
+            --primary-color: #4f46e5;
+            --secondary-color: #818cf8;
+            --bg-light: #f9fafb;
+            --text-dark: #1f2937;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s;
+        }
+
+        /* Styling for the stepper items */
+        .step-item {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            z-index: 10;
+        }
+
+        .step-item.active .step-number {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.4), 0 2px 4px -2px rgba(79, 70, 229, 0.4);
+            transform: scale(1.1);
+        }
+
+        .step-item:not(.active):hover .step-number {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .step-item.active .step-title {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .step-number {
+            width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            border-radius: 9999px;
+            background-color: #e5e7eb;
+            color: var(--text-dark);
+            transition: all 0.2s ease;
+        }
+
+        /* Stepper separator lines */
+        .stepper-line {
+            position: absolute;
+            left: 1.2rem;
+            top: 2.5rem;
+            bottom: 0;
+            width: 2px;
+            background-color: #e5e7eb;
+            z-index: 1;
+        }
+        .step-item:last-child .stepper-line {
+            display: none;
+        }
+
+        /* Content card animation */
+        .card-content {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Language specific styling */
+        .lang-en [data-lang="zh"],
+        .lang-zh [data-lang="en"] {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 md:p-8 lang-en">
+    <!-- Main Application Container -->
+    <div class="max-w-7xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden">
+        <header class="p-6 bg-white border-b border-gray-200 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <h1 class="text-3xl font-extrabold text-indigo-700">
+                <span data-lang="en">Product Development Roadmap</span>
+                <span data-lang="zh">產品開發生命週期藍圖</span>
+            </h1>
+            
+            <!-- Language Toggle Button -->
+            <button id="lang-toggle" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 shadow-md">
+                <span data-lang="en">切換到中文</span>
+                <span data-lang="zh">Switch to English</span>
+            </button>
+        </header>
+
+        <!-- Main Content Grid -->
+        <!-- UPDATED: Added min-h-[80vh] to ensure the grid has a sufficient height -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 min-h-[80vh]">
+            
+            <!-- Sidebar / Stepper Navigation -->
+            <!-- UPDATED: Removed max-h-[80vh] and added h-full to stretch the column height -->
+            <nav id="stepper-nav" class="lg:col-span-1 p-6 border-r border-gray-200 bg-gray-50 overflow-y-auto h-full">
+                <div id="steps-container" class="space-y-6 relative">
+                    <!-- Steps will be dynamically injected here -->
+                </div>
+            </nav>
+
+            <!-- Main Roadmap Content Area -->
+            <!-- UPDATED: Added h-full to stretch the column height -->
+            <main class="lg:col-span-3 p-6 md:p-10 h-full">
+                <!-- UPDATED: Added h-full to make the card fill the main area -->
+                <div id="content-card" class="card-content bg-white p-6 rounded-xl shadow-lg border border-gray-100 min-h-[60vh] h-full flex flex-col justify-between">
+                    <div>
+                        <!-- Icon -->
+                        <div id="stage-icon" class="text-6xl text-indigo-500 mb-6"></div>
+                        
+                        <!-- Title -->
+                        <h2 id="stage-title" class="text-4xl font-bold text-gray-900 mb-4"></h2>
+                        <p id="stage-bilingual-title" class="text-xl font-medium text-indigo-600 mb-6"></p>
+
+                        <!-- Description -->
+                        <h3 class="text-2xl font-semibold text-gray-700 mb-3 border-b pb-1">
+                            <span data-lang="en">Description</span>
+                            <span data-lang="zh">階段描述</span>
+                        </h3>
+                        <p id="stage-description" class="text-gray-600 mb-6 leading-relaxed"></p>
+
+                        <!-- Key Activities -->
+                        <h3 class="text-2xl font-semibold text-gray-700 mb-3 border-b pb-1">
+                            <span data-lang="en">Key Activities</span>
+                            <span data-lang="zh">關鍵活動</span>
+                        </h3>
+                        <ul id="stage-activities" class="list-disc list-inside space-y-2 text-gray-600 mb-6 pl-4"></ul>
+
+                        <!-- Example -->
+                        <h3 class="text-2xl font-semibold text-gray-700 mb-3 border-b pb-1">
+                            <span data-lang="en">Example: Robot Cleaner</span>
+                            <span data-lang="zh">範例：清潔機器人</span>
+                        </h3>
+                        <p id="stage-example" class="text-gray-500 italic mb-6"></p>
+
+                        <!-- NEW: Image Placeholder Container -->
+                        <div id="stage-image-container" class="mt-4 mb-8">
+                            <img id="stage-image" 
+                                class="w-full h-auto max-h-80 object-cover rounded-xl shadow-xl border-4 border-indigo-50/50" 
+                                alt="Visual representation of the product stage">
+                        </div>
+                        <!-- END NEW IMAGE CONTAINER -->
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <div class="mt-8 flex justify-between">
+                        <button id="prev-btn" class="flex items-center space-x-2 px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                            </svg>
+                            <span data-lang="en">Previous</span>
+                            <span data-lang="zh">上一步</span>
+                        </button>
+                        <button id="next-btn" class="flex items-center space-x-2 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <span data-lang="en">Next</span>
+                            <span data-lang="zh">下一步</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // --- Roadmap Data Definition ---
+        const roadmapData = [
+            {
+                id: 1,
+                icon: '💡',
+                // UPDATED: Using a simple relative path 'xxx.jpg' as requested.
+                imageUrl: '001.jpg', 
+                en: {
+                    title: 'Idea',
+                    bilingualTitle: 'Phase 1: Concept Spark',
+                    description: 'The initial stage of <span class="font-bold">unfiltered inspiration</span>, where a potential <span class="font-bold">market need</span> or technological opportunity is first perceived, often resulting in a high-level concept statement.',
+                    activities: ['Observe user behavior and pain points', 'Identify technology trends', 'Draft initial high-level concept statement', 'Define potential market gap'],
+                    example: 'Observing the frustration of users who must run both a dedicated vacuum and a dedicated mop daily leads to the <span class="font-bold">primary insight</span>: <i>A single robot must perform both tasks simultaneously and effectively.</i> The core idea is the 3-in-1 capability.'
+                },
+                zh: {
+                    title: '想法',
+                    bilingualTitle: '階段一：概念火花',
+                    description: '<span class="font-bold">未經過濾的靈感</span>的初始階段，首次感知到潛在的<span class="font-bold">市場需求</span>或技術機會，通常產生一個高層次的概唸聲明。',
+                    activities: ['觀察用戶行為和痛點', '識別技術趨勢', '起草初步的高層次概唸聲明', '定義潛在的市場空白'],
+                    example: '觀察到用戶每天必須運行專門的吸塵器和拖把所產生的挫敗感，從而產生了<span class="font-bold">主要洞察</span>：<i>一個機器人必須同時有效地執行這兩項任務。</i>核心想法是 3 合 1 功能。'
+                }
+            },
+            {
+                id: 2,
+                icon: '🧠',
+                // Using a generic placeholder image URL (you can replace the '.co' part with your own .jpg)
+                imageUrl: '002.jpg', 
+                en: {
+                    title: 'Brainstorm',
+                    bilingualTitle: 'Phase 2: Solution Exploration',
+                    description: 'Structured session focused on generating numerous solutions for the identified problem, prioritizing quantity over quality to explore a wide range of <span class="font-bold">functional possibilities</span> and <span class="font-bold">technological paths</span>.',
+                    activities: ['Conduct multi-disciplinary idea generation sessions', 'Explore competitive and alternative solutions', 'Map out potential user flows (user journey)', 'Filter ideas based on rough technical feasibility'],
+                    example: 'The team gathers to fill whiteboards with ideas: using <span class="font-bold">disposable pads</span> vs. <span class="font-bold">washable rollers</span>, <span class="font-bold">LiDAR</span> vs. optical navigation, integrated water tank vs. external base station for refill. Focus is on maximum <span class="font-bold">idea diversity</span> before selecting the most promising path.'
+                },
+                zh: {
+                    title: '腦力激盪',
+                    bilingualTitle: '階段二：解決方案探索',
+                    description: '專注於為確定的問題生成眾多解決方案的結構化會議，優先考慮數量而非品質，以探索廣泛的<span class="font-bold">功能可能性</span>和<span class="font-bold">技術路徑</span>。',
+                    activities: ['進行多學科的創意產生會議', '探索競爭和替代解決方案', '繪製潛在的用戶流程（用戶旅程）', '根據粗略的技術可行性篩選想法'],
+                    example: '團隊聚集在一起，用白板填滿各種想法：使用<span class="font-bold">一次性拖布墊</span>還是<span class="font-bold">可水洗滾筒</span>，<span class="font-bold">LiDAR</span>還是光學導航，整合式水箱還是用於補充的外部底座。重點是在選擇最有前途的路徑之前，實現最大的<span class="font-bold">想法多樣性</span>。'
+                }
+            },
+            {
+                id: 3,
+                icon: '🧪',
+                imageUrl: '003.jpg', 
+                en: {
+                    title: 'Proof of Concept (POC)',
+                    bilingualTitle: 'Phase 3: Core Feasibility Check',
+                    description: 'A small, focused exercise to determine if the <span class="font-bold">core technical principle</span> of the idea is feasible. It answers the question: <i>Can we build the core function?</i> It is a low-fidelity, <span class="font-bold">non-commercial</span> test.',
+                    activities: ['Develop a minimal functional test rig', 'Verify power consumption and battery sizing for simultaneous tasks', 'Test basic water/dust separation mechanism', 'Demonstrate core function viability to stakeholders'],
+                    example: 'Engineers quickly rig a demo unit combining a basic vacuum motor and a rudimentary water dispenser to prove the concept of <span class="font-bold">simultaneous operation</span> without shorting out the electronics or contaminating the dustbin with water. This confirms the <span class="font-bold">dual-task physics</span> are sound.'
+                },
+                zh: {
+                    title: '概念驗證 (POC)',
+                    bilingualTitle: '階段三：核心可行性檢查',
+                    description: '一個小型、集中的練習，用於確定想法的<span class="font-bold">核心技術原理</span>是否可行。它回答了這個問題：<i>我們能構建核心功能嗎？</i> 這是一個低保真度的、<span class="font-bold">非商業性</span>的測試。',
+                    activities: ['開發最小功能測試平台', '驗證同步任務的功耗和電池尺寸', '測試基本的注水/集塵分離機制', '向利益相關者演示核心功能的可行性'],
+                    example: '工程師迅速架設了一個演示單元，結合了基本的吸塵器馬達和一個簡陋的注水器，以證明<span class="font-bold">同步操作</span>的概念可行，而不會使電子設備短路或用水污染集塵盒。這證實了<span class="font-bold">雙任務物理原理</span>是可靠的。'
+                }
+            },
+            {
+                id: 4,
+                icon: '🏃',
+                imageUrl: '004.jpg', 
+                en: {
+                    title: 'Rapid Function and Features Test',
+                    bilingualTitle: 'Phase 4: Feature Acceptance',
+                    description: 'Short, iterative testing cycles to evaluate the viability and <span class="font-bold">user acceptance</span> of <i>specific</i> features defined by the core concept. It moves beyond technical feasibility to <span class="font-bold">user desirability</span> and preference.',
+                    activities: ['Build several low-cost prototypes with feature variations', 'Conduct A/B testing on feature preference (e.g., app layout)', 'Test different sensor arrangements for mapping accuracy', 'Iterate quickly based on early user feedback'],
+                    example: 'Creating a series of rough prototypes to test <span class="font-bold">two cleaning pressures</span> (light vs. heavy mopping) and different <span class="font-bold">obstacle avoidance sensors</span>. Feedback is gathered rapidly from five internal users to select the optimal cleaning pressure and sensor configuration before detailed design.'
+                },
+                zh: {
+                    title: '快速功能與特點測試',
+                    bilingualTitle: '階段四：功能驗收',
+                    description: '短暫、迭代的測試週期，用於評估核心概念定義的<i>特定</i>功能的生存能力和<span class="font-bold">用戶接受度</span>。它超越了技術可行性，轉向<span class="font-bold">用戶滿意度</span>和偏好。',
+                    activities: ['構建具有功能變化的多個低成本原型', '對功能偏好進行 A/B 測試（例如：應用程式佈局）', '測試不同的感測器排列以實現地圖繪製準確性', '根據早期用戶回饋快速迭代'],
+                    example: '創建一系列粗略的原型，以測試<span class="font-bold">兩種清潔壓力</span>（輕度與重度拖地）和不同的<span class="font-bold">避障感測器</span>。從五個內部用戶那裡迅速收集回饋，以便在詳細設計之前選擇最佳的清潔壓力和感測器配置。'
+                }
+            },
+            {
+                id: 5,
+                icon: '📜',
+                imageUrl: '005.jpg', 
+                en: {
+                    title: 'Product Specification & Customer Requirements',
+                    bilingualTitle: 'Phase 5: Formal Blueprint',
+                    description: 'Formal definition of the product, resulting in a <span class="font-bold">Product Requirements Document (PRD)</span> that outlines <span class="font-bold">User Stories</span>, <span class="font-bold">Success Criteria</span>, and all functional, non-functional, and <span class="font-bold">compliance requirements</span>.',
+                    activities: ['Write detailed PRD and define all user stories', 'Establish Key Performance Indicators (KPIs) for testing', 'Define technical specifications (e.g., dimensions, throughput)', 'Secure sign-off on the final specification document'],
+                    example: 'The PRD is finalized, demanding: $5000Pa$ max <span class="font-bold">suction power</span>, app control for <span class="font-bold">no-go zones</span>, $150$-minute <span class="font-bold">battery life</span>, <span class="font-bold">Wi-Fi 6</span> integration, and mandatory compliance with <span class="font-bold">FCC/CE</span> RF emissions standards for global sales.'
+                },
+                zh: {
+                    title: '產品規格與客戶要求',
+                    bilingualTitle: '階段五：正式藍圖',
+                    description: '產品的正式定義，產生<span class="font-bold">產品需求文件 (PRD)</span>，其中概述了<span class="font-bold">用戶故事</span>、<span class="font-bold">成功標準</span>以及所有功能、非功能和<span class="font-bold">合規性要求</span>。',
+                    activities: ['撰寫詳細的 PRD 並定義所有用戶故事', '建立測試的關鍵績效指標 (KPI)', '定義技術規格（例如：尺寸、吞吐量）', '獲得最終規格文件的簽署批准'],
+                    example: 'PRD 已最終確定，要求：$5000Pa$ 最大<span class="font-bold">吸力</span>、用於<span class="font-bold">禁區</span>的應用程式控制、$150$ 分鐘<span class="font-bold">電池續航時間</span>、<span class="font-bold">Wi-Fi 6</span> 整合，以及強制遵守用於全球銷售的 <span class="font-bold">FCC/CE</span> 射頻輻射標準。'
+                }
+            },
+            {
+                id: 6,
+                icon: '📐',
+                imageUrl: '006.jpg', 
+                en: {
+                    title: 'Design (Detailed Engineering)',
+                    bilingualTitle: 'Phase 6: Full System Architecture',
+                    description: 'The phase where the formal <span class="font-bold">system architecture</span> is designed. This includes electrical schematics, <span class="font-bold">software APIs</span>, mechanical blueprints, <span class="font-bold">thermal analysis</span>, and the final <span class="font-bold">Industrial Design (ID)</span>.',
+                    activities: ['Complete Mechanical Computer-Aided Design (CAD)', 'Develop Electrical Schematics and PCB layout', 'Define firmware structure and communication protocols', 'Select and source long-lead-time components'],
+                    example: 'Mechanical CAD models are finalized for the <span class="font-bold">chassis structure</span> and the <span class="font-bold">motorized cleaning head</span>. Software architects define the <span class="font-bold">cloud messaging protocol</span> for secure remote control, and the ID team locks down the final look, feel, and material choices.'
+                },
+                zh: {
+                    title: '設計（詳細工程）',
+                    bilingualTitle: '階段六：完整系統架構',
+                    description: '正式設計<span class="font-bold">系統架構</span>的階段。這包括電氣原理圖、<span class="font-bold">軟體 API</span>、機械藍圖、<span class="font-bold">熱分析</span>和最終的<span class="font-bold">工業設計 (ID)</span>。',
+                    activities: ['完成機械電腦輔助設計 (CAD)', '開發電氣原理圖和 PCB 佈局', '定義韌體結構和通信協定', '選擇和採購長交期組件'],
+                    example: '機械 CAD 模型已最終確定，用於<span class="font-bold">底盤結構</span>和<span class="font-bold">電動清潔頭</span>。軟體架構師定義了用於安全遠程控制的<span class="font-bold">雲端消息傳遞協定</span>，ID 團隊確定了最終外觀、質感和材料選擇。'
+                }
+            },
+            {
+                id: 7,
+                icon: '🏗️',
+                imageUrl: '007.jpg', 
+                en: {
+                    title: 'Prototype',
+                    bilingualTitle: 'Phase 7: First Functional Unit',
+                    description: 'Creation of the first full-scale, functioning physical models based on the detailed engineering designs. These are generally <span class="font-bold">hand-built</span> or <span class="font-bold">3D-printed</span> and are used for rigorous <span class="font-bold">internal engineering testing</span>.',
+                    activities: ['Build initial set of Alpha units (e.g., 5-10 units)', 'Integrate all major hardware and software components', 'Begin thermal and power consumption testing', 'Verify physical fit and component alignment'],
+                    example: 'The engineering team produces the first $5$ functional <span class="font-bold">Alpha prototypes</span> using final components. These units look and act like the final product and are subjected to rigorous <span class="font-bold">in-house stress tests</span> to identify early failures in motors, batteries, and sensors.'
+                },
+                zh: {
+                    title: '原型',
+                    bilingualTitle: '階段七：首個功能單元',
+                    description: '根據詳細工程設計創建的第一批全尺寸、功能性物理模型。這些通常是<span class="font-bold">手工構建</span>或<span class="font-bold">$3D$ 列印</span>的，用於嚴格的<span class="font-bold">內部工程測試</span>。',
+                    activities: ['構建初始的 Alpha 裝置組（例如：$5-10$ 個裝置）', '整合所有主要的硬體和軟體組件', '開始熱和功耗測試', '驗證物理配合和組件對齊'],
+                    example: '工程團隊使用最終組件生產了首批 $5$ 個功能性 <span class="font-bold">Alpha 原型</span>。這些裝置的外觀和行為與最終產品相似，並經過嚴格的<span class="font-bold">內部壓力測試</span>，以識別馬達、電池和感測器的早期故障。'
+                }
+            },
+            {
+                id: 8,
+                icon: '🔬',
+                imageUrl: '008.jpg', 
+                en: {
+                    title: 'Validation and Verification (V&V) Test',
+                    bilingualTitle: 'Phase 8: Quality & Compliance',
+                    description: 'Systematic testing to ensure the product was <i>built correctly</i> (<span class="font-bold">Verification</span>) and that the product <i>meets user needs</i> (<span class="font-bold">Validation</span>). This includes <span class="font-bold">safety testing</span>, <span class="font-bold">regulatory compliance</span>, and <span class="font-bold">durability checks</span>.',
+                    activities: ['Complete mandatory safety and regulatory certifications (FCC, CE)', 'Perform extensive life-cycle and stress testing (e.g., 5,000 cycles)', 'Validate software against all PRD user stories', 'Run automated test scripts on core functions'],
+                    example: 'Testing that the <span class="font-bold">anti-drop sensors</span> work reliably on black carpets (Verification), and running the robot in $50$ real homes to confirm the <span class="font-bold">automatic dirt detection</span> algorithm correctly adjusts suction power (Validation). Full <span class="font-bold">battery thermal safety</span> tests are also conducted here.'
+                },
+                zh: {
+                    title: '確認與驗證測試 (V&V)',
+                    bilingualTitle: '階段八：品質與合規性',
+                    description: '系統測試，以確保產品<i>構建正確</i>（<span class="font-bold">驗證</span>）並且產品<i>滿足用戶需求</i>（<span class="font-bold">確認</span>）。這包括<span class="font-bold">安全測試</span>、<span class="font-bold">監管合規性</span>和<span class="font-bold">耐用性檢查</span>。',
+                    activities: ['完成強制性安全和監管認證（FCC、CE）', '執行廣泛的生命週期和壓力測試（例如：$5,000$ 次循環）', '根據所有 PRD 用戶故事驗證軟體', '對核心功能運行自動化測試腳本'],
+                    example: '測試<span class="font-bold">防跌落感測器</span>在高絨地毯上是否可靠工作（驗證），並在 $50$ 個真實家庭中運行機器人，以確認<span class="font-bold">自動污垢檢測</span>算法正確調整吸力（確認）。此處還進行了全面的<span class="font-bold">電池熱安全</span>測試。'
+                }
+            },
+            {
+                id: 9,
+                icon: '✅',
+                imageUrl: '009.jpg', 
+                en: {
+                    title: 'Acceptance Test Plan (ATP)',
+                    bilingualTitle: 'Phase 9: Final Go/No-Go',
+                    description: 'The final stage of internal quality checking where the product is tested against a predefined checklist of <span class="font-bold">customer-facing scenarios</span> before release. The product must <i>pass</i> the <span class="font-bold">ATP</span> to proceed to mass production.',
+                    activities: ['Execute formal, signed-off test cases', 'Verify successful installation and first-run experience', 'Check final translations and documentation quality', 'Review and approve all outstanding minor bugs'],
+                    example: 'A comprehensive checklist is run by the QA team: Can $99\%$ of test users successfully set up <span class="font-bold">multi-floor mapping</span>? Does the robot clean a $1000$ sq ft space without a battery intervention? The <span class="font-bold">Executive Team</span> signs off on the final passed ATP report.'
+                },
+                zh: {
+                    title: '驗收測試計劃 (ATP)',
+                    bilingualTitle: '階段九：最終批准/否決',
+                    description: '產品發布前的內部品質檢查的最後階段，產品根據預定義的<span class="font-bold">面向客戶的場景</span>清單進行測試。產品必須<i>通過</i> <span class="font-bold">ATP</span> 才能進入批量生產。',
+                    activities: ['執行正式、簽署的測試用例', '驗證成功的安裝和首次運行體驗', '檢查最終翻譯和文件品質', '審查和批准所有未解決的輕微錯誤'],
+                    example: 'QA 團隊運行一份全面的清單：$99\%$ 的測試用戶能否成功設置<span class="font-bold">多樓層地圖繪製</span>？機器人能否在無需電池干預的情況下清潔 $1000$ 平方英尺的空間？<span class="font-bold">執行團隊</span>簽署最終通過的 ATP 報告。'
+                }
+            },
+            {
+                id: 10,
+                icon: '🏭',
+                imageUrl: '010.jpg', 
+                en: {
+                    title: 'Design Transfer to Manufacturing (DTM)',
+                    bilingualTitle: 'Phase 10: Production Setup',
+                    description: 'Formal handover of all final design documents, <span class="font-bold">Bill of Materials (BOM)</span>, assembly instructions, and <span class="font-bold">quality control standards</span> to the production team or <span class="font-bold">Contract Manufacturer (CM)</span>.',
+                    activities: ['Finalize and lock the BOM', 'Create factory work instructions (SOPs)', 'Train factory staff on new assembly line processes', 'Approve factory tooling and production fixtures (jigs)'],
+                    example: 'Finalizing the $500$-page assembly manual, approving the <span class="font-bold">tooling drawings</span> for the plastic injection molds, and training the factory floor supervisors on the precise operation of the <span class="font-bold">testing jigs</span> and <span class="font-bold">failure analysis</span> procedures specific to the cleaning mechanisms.'
+                },
+                zh: {
+                    title: '設計轉移至製造 (DTM)',
+                    bilingualTitle: '階段十：生產設置',
+                    description: '將所有最終設計文件、<span class="font-bold">物料清單 (BOM)</span>、組裝說明和<span class="font-bold">品質控制標準</span>正式移交給生產團隊或<span class="font-bold">合約製造商 (CM)</span>。',
+                    activities: ['最終確定並鎖定 BOM', '創建工廠工作說明 (SOP)', '培訓工廠員工新的裝配線流程', '批准工廠工裝和生產夾具（治具）'],
+                    example: '最終確定 $500$ 頁的組裝手冊，批准塑膠注塑模具的<span class="font-bold">工裝圖紙</span>，並培訓工廠主管關於特定於清潔機制的<span class="font-bold">測試治具</span>和<span class="font-bold">故障分析</span>程序的精確操作。'
+                }
+            },
+            {
+                id: 11,
+                icon: '⚙️',
+                imageUrl: '011.jpg', 
+                en: {
+                    title: 'Engineering Sample (Alpha Units)',
+                    bilingualTitle: 'Phase 11: Production Verification',
+                    description: 'A small batch of units built <i>by the factory</i> using the final <span class="font-bold">tooling and processes</span>. The primary goal is for the <span class="font-bold">engineering team</span> to confirm the mass production setup works as intended.',
+                    activities: ['Build first batch of devices (e.g., 100-200 units) on the line', 'Test for manufacturing defects (M-Defects)', 'Check component quality from new suppliers', 'Verify that <span class="font-bold">production test jigs</span> correctly pass/fail units'],
+                    example: 'The factory produces $100$ units. Engineers check for <span class="font-bold">tolerance stack-up issues</span> (parts not fitting due to mass production) and verify that the <span class="font-bold">automated calibration</span> processes for LiDAR sensors are performing correctly on the production line <i>before</i> mass investment.'
+                },
+                zh: {
+                    title: '工程樣品 (Alpha 機)',
+                    bilingualTitle: '階段十一：生產驗證',
+                    description: '工廠使用最終的<span class="font-bold">工裝和流程</span>製造的一小批裝置。主要目標是讓<span class="font-bold">工程團隊</span>確認批量生產設置按預期工作。',
+                    activities: ['在生產線上構建第一批裝置（例如：$100-200$ 個裝置）', '測試製造缺陷（M 缺陷）', '檢查新供應商的組件品質', '驗證<span class="font-bold">生產測試夾具</span>是否正確地通過/失敗裝置'],
+                    example: '工廠生產 $100$ 個裝置。工程師檢查<span class="font-bold">公差疊加問題</span>（由於批量生產導致零件不匹配），並驗證 <span class="font-bold">LiDAR 感測器</span>的<span class="font-bold">自動校準</span>流程在生產線上是否正確執行，<i>然後</i>才進行批量投資。'
+                }
+            },
+            {
+                id: 12,
+                icon: '👥',
+                imageUrl: '012.jpg', 
+                en: {
+                    title: 'Pilot Sample (Beta Units)',
+                    bilingualTitle: 'Phase 12: External Field Test',
+                    description: 'A larger batch of units built under <span class="font-bold">mass production conditions</span> for external testing with real customers (the <span class="font-bold">Beta Program</span>). Used to test scale, durability, and gather real-world usage data.',
+                    activities: ['Ship units to Beta testers, reviewers, and key influencers', 'Monitor usage analytics and crash reports in real-time', 'Collect qualitative feedback on user experience', 'Test final packaging and logistics processes'],
+                    example: '$1,000$ robots are shipped to <span class="font-bold">early adopters</span> and <span class="font-bold">media reviewers</span> globally. The goal is to detect <span class="font-bold">systemic bugs</span> related to long-term usage, different router configurations, diverse floor types, and confirm the reliability of the <span class="font-bold">self-cleaning dock</span> over months of use.'
+                },
+                zh: {
+                    title: '試點樣品 (Beta 機)',
+                    bilingualTitle: '階段十二：外部現場測試',
+                    description: '在<span class="font-bold">批量生產條件</span>下製造的更大批量裝置，用於與真實客戶進行外部測試（<span class="font-bold">Beta 計劃</span>）。用於測試規模、耐用性並收集真實世界的使用數據。',
+                    activities: ['將裝置運送給 Beta 測試人員、評論者和關鍵影響者', '即時監控使用分析和崩潰報告', '收集有關用戶體驗的定性回饋', '測試最終包裝和物流流程'],
+                    example: '$1000$ 台機器人運送給全球的<span class="font-bold">早期採用者</span>和<span class="font-bold">媒體評論者</span>。目標是檢測與長期使用、不同路由器配置、多樣化地板類型相關的<span class="font-bold">系統性錯誤</span>，並確認<span class="font-bold">自清潔底座</span>經過數月使用後的可靠性。'
+                }
+            },
+            {
+                id: 13,
+                icon: '📦',
+                imageUrl: '013.jpg', 
+                en: {
+                    title: 'Release to Mass Production',
+                    bilingualTitle: 'Phase 13: Full Scale Launch',
+                    description: 'Final approval is given, signaling the factory to ramp up to full capacity. Focus shifts to monitoring the <span class="font-bold">supply chain</span>, optimizing <span class="font-bold">yield rates</span> (percentage of good units), and coordinating global <span class="font-bold">fulfillment</span>.',
+                    activities: ['Executive sign-off on mass production readiness', 'Ramp up production volume to target rates', 'Monitor factory yield and implement quality improvements', 'Coordinate marketing, sales, and fulfillment launch day activities'],
+                    example: 'The <span class="font-bold">Executive Sign-off</span> is received after all Beta issues are addressed. Production ramps to $10,000$ units per week. The operations team closely monitors <span class="font-bold">supplier lead times</span> for battery cells and microprocessors to prevent stock shortages during the initial global sales peak.'
+                },
+                zh: {
+                    title: '投放至批量生產',
+                    bilingualTitle: '階段十三：全面啟動',
+                    description: '給予最終批准，標誌著工廠開始全面提高產能。重點轉向監控<span class="font-bold">供應鏈</span>、優化<span class="font-bold">良率</span>（良好裝置的百分比）以及協調全球<span class="font-bold">交付</span>。',
+                    activities: ['執行長簽署批准大規模生產準備情況', '將生產量提高到目標比率', '監控工廠良率並實施品質改進', '協調行銷、銷售和交付發布日活動'],
+                    example: '在解決所有 Beta 問題後，收到了<span class="font-bold">執行簽署</span>。生產提高到每週 $10,000$ 台裝置。營運團隊密切監控電池和微處理器的<span class="font-bold">供應商交貨時間</span>，以防止在全球初始銷售高峰期間出現庫存短缺。'
+                }
+            },
+            {
+                id: 14,
+                icon: '📞',
+                imageUrl: '014.jpg', 
+                en: {
+                    title: 'Product Services',
+                    bilingualTitle: 'Phase 14: Maintenance & Updates',
+                    description: 'The phase covering <span class="font-bold">post-purchase activities</span>, including customer support, delivering <span class="font-bold">over-the-air (OTA) software updates</span>, managing <span class="font-bold">warranty claims</span>, and selling <span class="font-bold">replacement parts</span> and consumables.',
+                    activities: ['Establish and staff customer support channels', 'Monitor user feedback and analyze support ticket trends', 'Develop and push regular OTA firmware and app updates', 'Manage e-commerce for consumables (mop pads, brushes)'],
+                    example: 'Launching the in-app feature for ordering replacement brushes and filters. Developing the <span class="font-bold">v1.1 firmware update</span> to fix the anti-collision sensitivity issue and improving the <span class="font-bold">cloud service infrastructure</span> to handle one million connected robots and their secure map data.'
+                },
+                zh: {
+                    title: '產品服務',
+                    bilingualTitle: '階段十四：維護與更新',
+                    description: '涵蓋<span class="font-bold">售後活動</span>的階段，包括客戶支援、提供<span class="font-bold">無線 (OTA) 軟體更新</span>、管理<span class="font-bold">保固索賠</span>以及銷售<span class="font-bold">替換零件</span>和耗材。',
+                    activities: ['建立客戶支援渠道並配備人員', '監控用戶回饋並分析支援工單趨勢', '開發並推送定期的 OTA 韌體和應用程式更新', '管理耗材（拖布墊、刷子）的電子商務'],
+                    example: '推出用於訂購替換刷子和過濾器的應用程式內功能。開發 <span class="font-bold">v1.1 韌體更新</span>以修復防撞靈敏度問題，並改進<span class="font-bold">雲服務基礎設施</span>以處理一百萬台連接的機器人及其安全地圖數據。'
+                }
+            }
+        ];
+
+        let currentStageId = 1;
+        const body = document.body;
+        const stepsContainer = document.getElementById('steps-container');
+        const contentCard = document.getElementById('content-card');
+        const stageTitleEl = document.getElementById('stage-title');
+        const stageBilingualTitleEl = document.getElementById('stage-bilingual-title');
+        const stageDescriptionEl = document.getElementById('stage-description');
+        const stageActivitiesEl = document.getElementById('stage-activities');
+        const stageExampleEl = document.getElementById('stage-example');
+        const stageIconEl = document.getElementById('stage-icon');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const langToggleBtn = document.getElementById('lang-toggle');
+
+        // Image elements
+        const stageImageEl = document.getElementById('stage-image');
+        const stageImageContainerEl = document.getElementById('stage-image-container');
+
+
+        // Function to render the steps in the sidebar
+        function renderSteps() {
+            stepsContainer.innerHTML = '';
+            const lang = body.classList.contains('lang-zh') ? 'zh' : 'en';
+
+            roadmapData.forEach((stage, index) => {
+                const isActive = stage.id === currentStageId;
+                const title = stage[lang].title;
+                
+                const stepElement = document.createElement('div');
+                stepElement.className = `step-item flex items-start space-x-4 p-2 rounded-lg ${isActive ? 'active bg-indigo-50' : 'hover:bg-gray-100'} transition duration-200`;
+                stepElement.setAttribute('data-id', stage.id);
+                stepElement.innerHTML = `
+                    <div class="relative flex-shrink-0">
+                        <div class="step-number text-sm">${stage.id}</div>
+                        ${index < roadmapData.length - 1 ? '<div class="stepper-line"></div>' : ''}
+                    </div>
+                    <div class="flex flex-col pt-1 pl-1">
+                        <p class="text-xs text-gray-400">
+                            <span data-lang="en">Phase ${stage.id}</span>
+                            <span data-lang="zh">階段 ${stage.id}</span>
+                        </p>
+                        <p class="step-title text-base font-medium text-gray-700">${title}</p>
+                    </div>
+                `;
+                
+                stepElement.addEventListener('click', () => {
+                    currentStageId = stage.id;
+                    updateUI();
+                });
+                stepsContainer.appendChild(stepElement);
+            });
+        }
+
+        // Function to render the main content card
+        function renderContent() {
+            const stage = roadmapData.find(s => s.id === currentStageId);
+            if (!stage) return;
+
+            // Determine language
+            const langKey = body.classList.contains('lang-zh') ? 'zh' : 'en';
+            const content = stage[langKey];
+
+            // Update main elements
+            stageIconEl.textContent = stage.icon;
+            stageTitleEl.textContent = content.title;
+            stageBilingualTitleEl.textContent = content.bilingualTitle;
+
+            // Use innerHTML for description and example to render the bold spans and italic tags
+            stageDescriptionEl.innerHTML = content.description;
+            stageExampleEl.innerHTML = content.example;
+
+            // Handle the image display
+            const imageUrl = stage.imageUrl;
+
+            if (imageUrl) {
+                stageImageEl.src = imageUrl;
+                stageImageEl.alt = `${content.title} visual`;
+                stageImageContainerEl.classList.remove('hidden');
+                // Ensure the image element loads before continuing
+                stageImageEl.onerror = () => {
+                    // Fallback for missing images
+                    stageImageEl.src = `https://placehold.co/600x300/e0e7ff/3730a3?text=Missing+Image+for+Stage+${stage.id}`;
+                };
+            } else {
+                // If you use an empty string, the container hides. 
+                stageImageEl.src = ''; 
+                stageImageContainerEl.classList.add('hidden');
+            }
+
+            // Update activities list
+            stageActivitiesEl.innerHTML = '';
+            content.activities.forEach(activity => {
+                const li = document.createElement('li');
+                li.textContent = activity;
+                stageActivitiesEl.appendChild(li);
+            });
+
+            // Update button states
+            prevBtn.disabled = currentStageId === 1;
+            nextBtn.disabled = currentStageId === roadmapData.length;
+
+            // Scroll to top of content
+            contentCard.parentElement.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Global UI update function
+        function updateUI() {
+            // Re-render content first (as it controls the fade-in animation)
+            renderContent();
+            
+            // Re-render navigation (to update active state)
+            renderSteps();
+        }
+
+        // --- Event Listeners ---
+        
+        // Navigation buttons
+        prevBtn.addEventListener('click', () => {
+            if (currentStageId > 1) {
+                currentStageId--;
+                updateUI();
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentStageId < roadmapData.length) {
+                currentStageId++;
+                updateUI();
+            }
+        });
+
+        // Language toggle
+        langToggleBtn.addEventListener('click', () => {
+            const isZh = body.classList.toggle('lang-zh');
+            if (!isZh) {
+                body.classList.remove('lang-zh');
+                body.classList.add('lang-en');
+            } else {
+                body.classList.remove('lang-en');
+                body.classList.add('lang-zh');
+            }
+            updateUI(); // Re-render all elements with the new language
+        });
+
+        // Initial load
+        window.onload = function() {
+            updateUI();
+        };
+    </script>
+</body>
+</html>
